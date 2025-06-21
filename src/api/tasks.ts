@@ -19,3 +19,9 @@ export const fetchAllTaskListDetails = (): Promise<TaskListDetail[]> =>
     fetchTaskListSummaries().then(summaries =>
         Promise.all(summaries.map(s => fetchTaskListDetail(s.tasklistId)))
     );
+
+export const updateTaskListEnabled = (id: string, enabled: boolean) =>
+    api.put('/todo/tasklists', { id, enabled });
+
+export const createTaskList = (title: string): Promise<TaskListSummary> =>
+    api.post('/todo/tasklists', { title }).then(res => res.data);

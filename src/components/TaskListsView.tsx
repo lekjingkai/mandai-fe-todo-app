@@ -1,20 +1,24 @@
 // src/components/TaskListsView.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, CircularProgress, Alert, Typography, List, ListItem, ListItemText, Checkbox } from '@mui/material';
-import { fetchAllTaskListDetails } from '../api/tasks';
-import { TaskListDetail } from '../types';
+import {fetchAllTaskListDetails, fetchTaskListDetail} from '../api/tasks';
+import {TaskListDetail, TaskListSummary} from '../types';
 
-export const TaskListsView: React.FC = () => {
-    const [lists, setLists] = useState<TaskListDetail[]>([]);
+export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({ enabledTaskLists }) => {
+    const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState<string>();
+    const [error, setError] = useState<string>();
 
     useEffect(() => {
-        fetchAllTaskListDetails()
-            .then(data => setLists(data))
+        Promise.all(
+            enabledTaskLists.map(list =>
+                fetchTaskListDetail(list.tasklistId)
+            )
+        )
+            .then(setDetails)
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-    }, []);
+    }, [enabledTaskLists]);
 
     if (loading) {
         return (
@@ -45,7 +49,7 @@ export const TaskListsView: React.FC = () => {
                 overflowX: 'auto',
             }}
         >
-            {lists.map(list => (
+            {details.map(list => (
                 <Box key={list.id} sx={{ minWidth: 300, mr: 2 }}>
                     <Typography variant="h6" gutterBottom>
                         {list.title}

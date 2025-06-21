@@ -8,10 +8,12 @@ import {
     ListItemText,
     Typography,
     Divider,
-    CircularProgress
+    CircularProgress, ListItemIcon, Checkbox
 } from '@mui/material';
 import api from '../api/client';
-import {fetchTaskListSummaries} from "../api/tasks";  // your axios instance
+import {fetchTaskListSummaries, updateTaskListEnabled} from "../api/tasks";  // your axios instance
+import '../style/Sidebar.css';
+import {TaskListSummary} from "../types";
 
 // match your API shape
 interface TaskList {
@@ -21,17 +23,40 @@ interface TaskList {
     amount: number;
 }
 
-export const Sidebar: React.FC = () => {
-    const [lists, setLists] = useState<TaskList[]>([]);
+export const Sidebar: React.FC<{
+    taskListSummaries: TaskListSummary[];
+    setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>;
+}> = ({ taskListSummaries, setTaskListSummaries }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
 
     useEffect(() => {
         fetchTaskListSummaries()
-            .then(data => setLists(data))
+            .then(data => setTaskListSummaries(data))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-    }, []);
+    }, [setTaskListSummaries]);
+
+    const handleCheckboxToggle = (tasklistId: string) => {
+        const current = taskListSummaries.find(list => list.tasklistId === tasklistId);
+        if (!current) return;
+
+        const newEnabled = !current.enabled;
+        setTaskListSummaries(prev =>
+            prev.map(list =>
+                list.tasklistId === tasklistId ? { ...list, enabled: newEnabled } : list
+            )
+        );
+
+        updateTaskListEnabled(tasklistId, newEnabled).catch(() => {
+            // revert if error
+            setTaskListSummaries(prev =>
+                prev.map(list =>
+                    list.tasklistId === tasklistId ? { ...list, enabled: current.enabled } : list
+                )
+            );
+        });
+    };
 
     return (
         <Box
@@ -44,6 +69,7 @@ export const Sidebar: React.FC = () => {
                 borderRight: 1,
                 borderColor: 'divider',
                 p: 2,
+                padding: "12px 8px 0",
             }}
         >
             <Button
@@ -77,14 +103,29 @@ export const Sidebar: React.FC = () => {
                 <Typography color="error">{error}</Typography>
             ) : (
                 <List>
-                    {lists.map(list => (
+                    {taskListSummaries.map(list => (
                         <ListItemButton
                             key={list.tasklistId}
-                            disabled={!list.enabled}
+                            className="taskListItem"
                         >
+                            <ListItemIcon className="checkboxIcon">
+                                <Checkbox
+                                    checked={list.enabled}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCheckboxToggle(list.tasklistId);
+                                    }}
+                                />
+                            </ListItemIcon>
                             <ListItemText
-                                primary={list.title}
-                                secondary={list.amount > 0 ? `${list.amount} items` : undefined}
+                                primary={
+                                    <div className="taskTitleContainer">
+                                        <span className="taskTitle">{list.title}</span>
+                                        {list.amount > 0 && (
+                                            <span className="taskCount">{list.amount}</span>
+                                        )}
+                                    </div>
+                                }
                             />
                         </ListItemButton>
                     ))}
