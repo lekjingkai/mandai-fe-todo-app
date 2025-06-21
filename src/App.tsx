@@ -16,7 +16,18 @@ const App: React.FC = () => {
         <>
             <CssBaseline />
             <NavBar onToggleSidebar={toggleSidebar} title="Google Tasks Clone" />
-            <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+            <Box
+                sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'absolute',
+                top: '64px', // height of your AppBar
+                left: 0,
+                right: 0,
+                bottom: 0,
+                overflow: 'hidden',
+            }}
+            >
                 {sidebarOpen && (
                     <Sidebar
                         taskListSummaries={taskListSummaries}

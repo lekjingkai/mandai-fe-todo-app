@@ -8,20 +8,18 @@ import {
     ListItemText,
     Typography,
     Divider,
-    CircularProgress, ListItemIcon, Checkbox
+    CircularProgress,
+    ListItemIcon,
+    Checkbox,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField
 } from '@mui/material';
-import api from '../api/client';
-import {fetchTaskListSummaries, updateTaskListEnabled} from "../api/tasks";  // your axios instance
+import { fetchTaskListSummaries, updateTaskListEnabled, createTaskList } from '../api/tasks';
 import '../style/Sidebar.css';
-import {TaskListSummary} from "../types";
-
-// match your API shape
-interface TaskList {
-    tasklistId: string;
-    title: string;
-    enabled: boolean;
-    amount: number;
-}
+import { TaskListSummary } from '../types';
 
 export const Sidebar: React.FC<{
     taskListSummaries: TaskListSummary[];
@@ -29,6 +27,8 @@ export const Sidebar: React.FC<{
 }> = ({ taskListSummaries, setTaskListSummaries }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
+    const [openModal, setOpenModal] = useState(false);
+    const [newTitle, setNewTitle] = useState('');
 
     useEffect(() => {
         fetchTaskListSummaries()
@@ -49,7 +49,6 @@ export const Sidebar: React.FC<{
         );
 
         updateTaskListEnabled(tasklistId, newEnabled).catch(() => {
-            // revert if error
             setTaskListSummaries(prev =>
                 prev.map(list =>
                     list.tasklistId === tasklistId ? { ...list, enabled: current.enabled } : list
@@ -57,6 +56,20 @@ export const Sidebar: React.FC<{
             );
         });
     };
+
+    const handleCreate = async () => {
+        if (!newTitle.trim()) return;
+        try {
+            await createTaskList(newTitle.trim());
+            const updatedLists = await fetchTaskListSummaries();
+            setTaskListSummaries(updatedLists);
+            setOpenModal(false);
+            setNewTitle('');
+        } catch (err) {
+            console.error('Failed to create task list:', err);
+        }
+    };
+
 
     return (
         <Box
@@ -69,14 +82,10 @@ export const Sidebar: React.FC<{
                 borderRight: 1,
                 borderColor: 'divider',
                 p: 2,
-                padding: "12px 8px 0",
+                padding: '12px 8px 0',
             }}
         >
-            <Button
-                variant="contained"
-                fullWidth
-                sx={{ mb: 2 }}
-            >
+            <Button variant="contained" fullWidth sx={{ mb: 2 }}>
                 CREATE
             </Button>
 
@@ -104,17 +113,15 @@ export const Sidebar: React.FC<{
             ) : (
                 <List>
                     {taskListSummaries.map(list => (
-                        <ListItemButton
-                            key={list.tasklistId}
-                            className="taskListItem"
+                        <ListItemButton key={list.tasklistId} className="taskListItem"
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            handleCheckboxToggle(list.tasklistId);
+                                        }}
                         >
                             <ListItemIcon className="checkboxIcon">
                                 <Checkbox
                                     checked={list.enabled}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleCheckboxToggle(list.tasklistId);
-                                    }}
                                 />
                             </ListItemIcon>
                             <ListItemText
@@ -131,6 +138,33 @@ export const Sidebar: React.FC<{
                     ))}
                 </List>
             )}
+
+            <Button
+                variant="outlined"
+                fullWidth
+                sx={{ mt: 2 }}
+                onClick={() => setOpenModal(true)}
+            >
+                + New List
+            </Button>
+
+            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+                <DialogTitle>Create a new list</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        autoFocus
+                        margin="dense"
+                        label="List Name"
+                        value={newTitle}
+                        onChange={e => setNewTitle(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenModal(false)}>Cancel</Button>
+                    <Button onClick={handleCreate} variant="contained">Done</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
