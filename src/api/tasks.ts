@@ -8,11 +8,14 @@ export const fetchTaskListSummaries = (): Promise<TaskListSummary[]> =>
 
 // 2️⃣ Single list detail (from http://localhost:4000/todo/tasklists?id=…)
 export const fetchTaskListDetail = (
-    tasklistId: string
+    tasklistId?: string // now optional
 ): Promise<TaskListDetail> =>
     api
-        .get<TaskListDetail>('/todo/tasklists', { params: { id: tasklistId } })
+        .get<TaskListDetail>('/todo/tasklists', {
+            params: tasklistId ? { id: tasklistId } : {},
+        })
         .then(r => r.data);
+
 
 // 3️⃣ Helper: fetch *all* details in order
 export const fetchAllTaskListDetails = (): Promise<TaskListDetail[]> =>

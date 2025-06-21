@@ -10,15 +10,17 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
     const [error, setError] = useState<string>();
 
     useEffect(() => {
-        Promise.all(
-            enabledTaskLists.map(list =>
-                fetchTaskListDetail(list.tasklistId)
-            )
-        )
+        const promises = [
+            fetchTaskListDetail(), // fetch default list (no id)
+            ...enabledTaskLists.map(list => fetchTaskListDetail(list.tasklistId))
+        ];
+
+        Promise.all(promises)
             .then(setDetails)
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, [enabledTaskLists]);
+
 
     if (loading) {
         return (
