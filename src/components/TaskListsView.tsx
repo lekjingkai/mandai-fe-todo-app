@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-import {deleteTaskList, fetchTaskListDetail, updateTaskListName} from '../api/tasks';
+import {deleteTaskList, fetchTaskListDetail, updateTaskCompleted, updateTaskListName} from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
@@ -154,6 +154,41 @@ export const TaskListsView: React.FC<{
         console.log('Task clicked:', taskId);
     };
 
+    const handleTaskCheckboxToggle = (tasklistId: string, taskId: string, currentCompleted: boolean) => {
+        // Optimistically update UI
+        setDetails(prev =>
+            prev.map(list =>
+                list.id !== tasklistId
+                    ? list
+                    : {
+                        ...list,
+                        tasks: list.tasks.map(task =>
+                            task.id === taskId ? { ...task, completed: !currentCompleted } : task
+                        ),
+                    }
+            )
+        );
+
+        // Call API
+        updateTaskCompleted(taskId, !currentCompleted).catch(() => {
+            // Revert on failure
+            setDetails(prev =>
+                prev.map(list =>
+                    list.id !== tasklistId
+                        ? list
+                        : {
+                            ...list,
+                            tasks: list.tasks.map(task =>
+                                task.id === taskId ? { ...task, completed: currentCompleted } : task
+                            ),
+                        }
+                )
+            );
+        });
+    };
+
+
+
 
     if (loading) {
         return (
@@ -212,7 +247,10 @@ export const TaskListsView: React.FC<{
                                     className="task-item"
                                 >
                                     <ListItemIcon className="checkboxIcon">
-                                        <Checkbox checked={task.completed} />
+                                        <Checkbox checked={task.completed} onClick={e => {
+                                            e.stopPropagation();
+                                            handleTaskCheckboxToggle(list.id, task.id, task.completed);
+                                        }} />
                                     </ListItemIcon>
 
                                     <Box sx={{ flexGrow: 1 }} className="task-text-box">
