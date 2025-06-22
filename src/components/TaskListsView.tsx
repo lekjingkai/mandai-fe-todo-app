@@ -1,5 +1,5 @@
 // src/components/TaskListsView.tsx
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     CircularProgress,
@@ -11,14 +11,37 @@ import {
     Checkbox,
     IconButton,
     Menu,
-    MenuItem,
-    ListItemIcon
+    MenuItem, ListItemIcon, Button
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { fetchAllTaskListDetails, fetchTaskListDetail } from '../api/tasks';
-import { TaskListDetail, TaskListSummary } from '../types';
+import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 
-export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({ enabledTaskLists }) => {
+import {fetchAllTaskListDetails, fetchTaskListDetail} from '../api/tasks';
+import {TaskListDetail, TaskListSummary} from '../types';
+
+const formatDueDateLabel = (dateString: string, timeString?: string): string => {
+    const date = parseISO(dateString);
+    let label = '';
+
+    if (isToday(date)) {
+        label = 'Today';
+    } else if (isTomorrow(date)) {
+        label = 'Tomorrow';
+    } else {
+        label = format(date, 'EEE, d MMM');
+    }
+
+    if (timeString) {
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const time = new Date();
+        time.setHours(hours, minutes);
+        label += `, ${format(time, 'hh:mm a')}`;
+    }
+
+    return label;
+};
+
+export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({enabledTaskLists}) => {
     const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
@@ -67,13 +90,13 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
                     justifyContent: 'center',
                 }}
             >
-                <CircularProgress />
+                <CircularProgress/>
             </Box>
         );
     }
 
     if (error) {
-        return <Alert severity="error" sx={{ flexGrow: 1 }}>{error}</Alert>;
+        return <Alert severity="error" sx={{flexGrow: 1}}>{error}</Alert>;
     }
 
     return (
@@ -87,11 +110,12 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
             }}
         >
             {details.map(list => (
-                <Box key={list.id} sx={{ minWidth: 300, mr: 2 }} style={{ background: "#f5f5f5", borderRadius: 8, padding: 12 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6" >{list.title}</Typography>
+                <Box key={list.id} sx={{minWidth: 300, mr: 2}}
+                     style={{background: "#f5f5f5", borderRadius: 8}}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" className={"tasklist-box"}>
+                        <Typography>{list.title}</Typography>
                         <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
-                            <MoreVertIcon fontSize="small" />
+                            <MoreVertIcon fontSize="small"/>
                         </IconButton>
                         <Menu
                             anchorEl={anchorEl}
@@ -104,13 +128,32 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
                     </Box>
                     <List disablePadding>
                         {list.tasks.map(task => (
-                            <ListItem key={task.id} divider className="last-task-item">
+                            <ListItem key={task.id} divider className="task-item">
                                 <ListItemIcon className="checkboxIcon">
-                                <Checkbox checked={task.completed} />
+                                    <Checkbox checked={task.completed}/>
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={task.title}
-                                    secondary={`${task.notes} • Due ${task.dueDate} @ ${task.dueTime}`}
+                                    className={"task-text-box"}
+                                    primary={
+                                        <>
+                                            <Typography className={"title-text"}>{task.title}</Typography>
+                                            {task.notes && (
+                                                <Typography className={"notes-text"}>
+                                                    {task.notes}
+                                                </Typography>
+                                            )}
+                                        </>
+                                    }
+                                    secondary={
+                                        <>
+                                            {task.dueDate && (
+                                                <Button variant="text" size="small" color="inherit"   sx={{ p: 0, minWidth: 0, textTransform: 'none' }}
+                                                className={"date-button"}>
+                                                    {formatDueDateLabel(task.dueDate, task.dueTime)}
+                                                </Button>
+                                            )}
+                                        </>
+                                    }
                                 />
                             </ListItem>
                         ))}
