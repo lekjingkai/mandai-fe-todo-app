@@ -26,6 +26,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
+import pandaLogo from '../style/no-task-panda.svg';
 
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
@@ -37,6 +38,7 @@ import {
     updateTaskListName, updateTaskTasklist
 } from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
+import logoUrl from "../style/Logo-Mandai-EquaGreen.svg";
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
     const date = parseISO(dateString);
@@ -345,7 +347,7 @@ export const TaskListsView: React.FC<{
         <>
         <Box component="main" sx={{ flexGrow: 1, p: 2, display: 'flex', overflowX: 'auto' }}>
             {details.map(list => (
-                <Box key={list.id} sx={{ minWidth: 300, mr: 2, background: "#f5f5f5", borderRadius: 5 }}>
+                <Box key={list.id} sx={{ minWidth: 300, mr: 2, background: "#faf5e8", borderRadius: 5 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" className="tasklist-box">
                         <Typography style={{fontWeight: 600}}>{list.title}</Typography>
                         <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
@@ -355,6 +357,13 @@ export const TaskListsView: React.FC<{
                             anchorEl={anchorEl}
                             open={Boolean(anchorEl) && menuListId === list.id}
                             onClose={handleMenuClose}
+                            slotProps={{
+                                paper: {
+                                    sx: {
+                                        bgcolor: '#faf5e8', // your desired background
+                                    }
+                                }
+                            }}
                         >
                             <MenuItem onClick={handleRename} disabled={!list.id}>Rename</MenuItem>
                             <MenuItem onClick={handleDelete} disabled={!list.id}>Delete</MenuItem>
@@ -363,6 +372,12 @@ export const TaskListsView: React.FC<{
                     <List disablePadding>
                         {list.tasks.length === 0 ? (
                             <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
+                                <img
+                                    src={pandaLogo}
+                                    alt="logo"
+                                    width={150}
+                                    height={150}
+                                />
                                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                                     No tasks yet
                                 </Typography>
@@ -381,15 +396,23 @@ export const TaskListsView: React.FC<{
                                         borderBottom: '1px solid #e0e0e0',
                                         padding: '8px 16px',
                                         cursor: 'pointer',
-                                        '&:hover': { backgroundColor: '#f9f9f9' },
+                                        '&:hover': { backgroundColor: '#e1ddd1' },
                                     }}
                                     className="task-item"
                                 >
                                     <ListItemIcon className="checkboxIcon">
-                                        <Checkbox checked={task.completed} onClick={e => {
-                                            e.stopPropagation();
-                                            handleTaskCheckboxToggle(list.id, task.id, task.completed);
-                                        }} />
+                                        <Checkbox
+                                            checked={task.completed}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                handleTaskCheckboxToggle(list.id, task.id, task.completed);
+                                            }}
+                                            sx={{
+                                                '&.Mui-checked': {
+                                                    color: '#000',      // make the check‐icon black
+                                                },
+                                            }}
+                                        />
                                     </ListItemIcon>
 
                                     <Box sx={{ flexGrow: 1 }} className="task-text-box">
@@ -413,8 +436,15 @@ export const TaskListsView: React.FC<{
                                                 anchorEl={taskAnchorEl}
                                                 open={Boolean(taskAnchorEl) && activeTaskId === task.id}
                                                 onClose={handleTaskMenuClose}
+                                                slotProps={{
+                                                    paper: {
+                                                        sx: {
+                                                            bgcolor: '#faf5e8', // your desired background
+                                                        }
+                                                    }
+                                                }}
                                             >
-                                                <MenuItem onClick={() => handleDeleteTask(task.id)} >
+                                                <MenuItem onClick={() => handleDeleteTask(task.id)}>
                                                     <DeleteIcon/>
                                                     <span style={{paddingLeft: '6px'}}>Delete</span>
                                                 </MenuItem>
@@ -467,7 +497,15 @@ export const TaskListsView: React.FC<{
         </Box>
 
 
-            <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+            <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                bgcolor: '#faf5e8', // your desired background
+                            }
+                        }
+                    }}
+            >
                 <DialogTitle>Delete this list?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -480,7 +518,15 @@ export const TaskListsView: React.FC<{
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}>
+            <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                bgcolor: '#faf5e8', // your desired background
+                            }
+                        }
+                    }}
+            >
                 <DialogTitle>Rename List</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -493,14 +539,14 @@ export const TaskListsView: React.FC<{
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setRenameDialogOpen(false)} color="inherit">Cancel</Button>
-                    <Button onClick={confirmRename} variant="contained">Rename</Button>
+                    <Button onClick={() => setRenameDialogOpen(false)} sx={{ color: "#063200" }}>Cancel</Button>
+                    <Button onClick={confirmRename} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Rename</Button>
                 </DialogActions>
             </Dialog>
 
             <Popper open={Boolean(anchorElDate)} anchorEl={anchorElDate} placement="bottom-start" disablePortal>
                 <ClickAwayListener onClickAway={() => setAnchorElDate(null)}>
-                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250 }}>
+                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea' }}>
                         <Box display="flex" flexDirection="column" gap={1}>
                             <Box>
                                 <TextField
@@ -537,9 +583,9 @@ export const TaskListsView: React.FC<{
                 </ClickAwayListener>
             </Popper>
 
-            <Popper open={Boolean(anchorElEdit)} anchorEl={anchorElEdit} placement="bottom-start" disablePortal>
+            <Popper open={Boolean(anchorElEdit)} anchorEl={anchorElEdit} placement="bottom-start" disablePortal >
                 <ClickAwayListener onClickAway={() => setAnchorElEdit(null)}>
-                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250 }}>
+                    <Paper variant="outlined"  sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea' }}>
                         <Box display="flex" flexDirection="column" gap={1}>
                             <TextField
                                 label="Title"

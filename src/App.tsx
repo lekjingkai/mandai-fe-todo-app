@@ -15,7 +15,7 @@ const App: React.FC = () => {
     return (
         <>
             <CssBaseline />
-            <NavBar onToggleSidebar={toggleSidebar} title="Google Tasks Clone" />
+            <NavBar onToggleSidebar={toggleSidebar} title="Todo App" />
             <Box
                 sx={{
                 display: 'flex',
@@ -26,7 +26,8 @@ const App: React.FC = () => {
                 right: 0,
                 bottom: 0,
                 overflow: 'hidden',
-            }}
+                    backgroundColor: '#faebcd',  // your page color
+                }}
             >
                 {sidebarOpen && (
                     <Sidebar

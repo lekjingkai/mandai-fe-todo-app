@@ -118,7 +118,7 @@ export const Sidebar: React.FC<{
             sx={{
                 width: 240,
                 flexShrink: 0,
-                bgcolor: 'background.paper',
+                backgroundColor: '#faf5e8',
                 height: '100vh',
                 borderRight: 1,
                 borderColor: 'divider',
@@ -126,8 +126,8 @@ export const Sidebar: React.FC<{
                 padding: '12px 8px 0',
             }}
         >
-            <Button variant="contained" fullWidth sx={{ mb: 2 }} onClick={() => setTaskModalOpen(true)}>
-                CREATE
+            <Button variant="contained" fullWidth sx={{ mb: 2, backgroundColor: "#063200", color: "#faf5e8" }} onClick={() => setTaskModalOpen(true)}>
+                Create
             </Button>
 
             <List>
@@ -172,7 +172,13 @@ export const Sidebar: React.FC<{
                             }}
                         >
                             <ListItemIcon className="checkboxIcon">
-                                <Checkbox checked={list.enabled} />
+                                <Checkbox  checked={list.enabled}
+                                           sx={{
+                                               '&.Mui-checked': {
+                                                   color: '#000',      // make the check‐icon black
+                                               },
+                                           }}
+                                />
                             </ListItemIcon>
                             <ListItemText
                                 primary={<div className="taskTitleContainer">
@@ -188,13 +194,21 @@ export const Sidebar: React.FC<{
             <Button
                 variant="outlined"
                 fullWidth
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, color: "#063200", borderColor: '#063200' }}
                 onClick={() => setOpenModal(true)}
             >
-                + New List
+                Create new list
             </Button>
 
-            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+            <Dialog open={openModal} onClose={() => setOpenModal(false)}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                bgcolor: '#faf5e8', // your desired background
+                            }
+                        }
+                    }}
+            >
                 <DialogTitle>Create a new list</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -207,12 +221,19 @@ export const Sidebar: React.FC<{
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenModal(false)}>Cancel</Button>
-                    <Button onClick={handleCreate} variant="contained">Done</Button>
+                    <Button onClick={() => setOpenModal(false)} sx={{ color: "#063200" }}>Cancel</Button>
+                    <Button onClick={handleCreate} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Done</Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={taskModalOpen} onClose={() => setTaskModalOpen(false)}>
+            <Dialog open={taskModalOpen} onClose={() => setTaskModalOpen(false)}
+                    slotProps={{
+                paper: {
+                    sx: {
+                        bgcolor: '#faf5e8', // your desired background
+                    }
+                }
+            }}>
                 <DialogTitle>Create a new task</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -275,8 +296,8 @@ export const Sidebar: React.FC<{
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setTaskModalOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSaveTask} variant="contained">Save</Button>
+                    <Button onClick={() => setTaskModalOpen(false)} sx={{ color: "#063200" }}>Cancel</Button>
+                    <Button onClick={handleSaveTask} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Save</Button>
                 </DialogActions>
             </Dialog>
         </Box>
