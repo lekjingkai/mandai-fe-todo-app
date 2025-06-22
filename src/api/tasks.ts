@@ -39,3 +39,7 @@ export const createTask = (task: CreateTaskPayload): Promise<void> => {
 export const deleteTaskList = (id: string): Promise<void> => {
     return api.delete(`/todo/tasklists/${id}`);
 };
+
+export const updateTask = (task: Task): Promise<void> => {
+    return api.put('/todo/task', task).then(res => res.data);
+};

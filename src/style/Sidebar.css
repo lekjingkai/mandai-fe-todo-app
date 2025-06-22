@@ -124,8 +124,7 @@
 }
 
 .task-item {
-    background: #61dafb !important;
-    padding: 0 10px !important;
+    padding: 8px 10px !important;
 }
 
 .date-button {
@@ -146,7 +145,7 @@
 
 .notes-text {
     font-size: 12px !important;
-    margin-bottom: 5px !important;
+    margin-bottom: 3px !important;
 }
 
 .task-text-box {

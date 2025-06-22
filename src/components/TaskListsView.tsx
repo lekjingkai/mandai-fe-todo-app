@@ -6,14 +6,13 @@ import {
     Alert,
     Typography,
     List,
-    ListItem,
     ListItemText,
     Checkbox,
     IconButton,
     Menu,
     MenuItem,
     ListItemIcon,
-    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField
+    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, ListItem
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
@@ -151,6 +150,11 @@ export const TaskListsView: React.FC<{
         handleTaskMenuClose();
     };
 
+    const handleTaskClick = (taskId: string) => {
+        console.log('Task clicked:', taskId);
+    };
+
+
     if (loading) {
         return (
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -194,55 +198,71 @@ export const TaskListsView: React.FC<{
                             </Box>
                         ) : (
                             list.tasks.map(task => (
-                                <ListItem key={task.id} divider className="task-item" alignItems="flex-start">
+                                <Box
+                                    key={task.id}
+                                    onClick={() => handleTaskClick(task.id)}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        borderBottom: '1px solid #e0e0e0',
+                                        padding: '8px 16px',
+                                        cursor: 'pointer',
+                                        '&:hover': { backgroundColor: '#f9f9f9' },
+                                    }}
+                                    className="task-item"
+                                >
                                     <ListItemIcon className="checkboxIcon">
                                         <Checkbox checked={task.completed} />
                                     </ListItemIcon>
-                                    <ListItemText
-                                        className="task-text-box"
-                                        primary={
-                                            <Box display="flex" justifyContent="space-between" alignItems="center">
-                                                <Box>
-                                                    <Typography className="title-text">{task.title}</Typography>
-                                                    {task.notes && (
-                                                        <Typography className="notes-text">{task.notes}</Typography>
-                                                    )}
-                                                </Box>
-                                                <IconButton size="small" onClick={(e) => handleTaskMenuOpen(e, task.id)}>
-                                                    <MoreVertIcon fontSize="small" />
-                                                </IconButton>
-                                                <Menu
-                                                    anchorEl={taskAnchorEl}
-                                                    open={Boolean(taskAnchorEl) && activeTaskId === task.id}
-                                                    onClose={handleTaskMenuClose}
-                                                >
-                                                    <MenuItem onClick={() => handleUpdateTask(task.id)}>Update</MenuItem>
-                                                    <MenuItem onClick={() => handleDeleteTask(task.id)}>Delete</MenuItem>
-                                                </Menu>
+
+                                    <Box sx={{ flexGrow: 1 }} className="task-text-box">
+                                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                                            <Box>
+                                                <Typography className="title-text">{task.title}</Typography>
+                                                {task.notes && (
+                                                    <Typography className="notes-text">{task.notes}</Typography>
+                                                )}
                                             </Box>
-                                        }
-                                        secondary={
-                                            task.dueDate && (
-                                                <Button
-                                                    variant="text"
-                                                    size="small"
-                                                    color="inherit"
-                                                    className="date-button"
-                                                    sx={{
-                                                        p: 0,
-                                                        minWidth: 0,
-                                                        textTransform: 'none',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: '#61dafb !important',
-                                                        mt: 0.5
-                                                    }}
-                                                >
-                                                    {formatDueDateLabel(task.dueDate, task.dueTime)}
-                                                </Button>
-                                            )
-                                        }
-                                    />
-                                </ListItem>
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleTaskMenuOpen(e, task.id);
+                                                }}
+                                            >
+                                                <MoreVertIcon fontSize="small" />
+                                            </IconButton>
+                                            <Menu
+                                                anchorEl={taskAnchorEl}
+                                                open={Boolean(taskAnchorEl) && activeTaskId === task.id}
+                                                onClose={handleTaskMenuClose}
+                                            >
+                                                <MenuItem onClick={() => handleUpdateTask(task.id)}>Update</MenuItem>
+                                                <MenuItem onClick={() => handleDeleteTask(task.id)}>Delete</MenuItem>
+                                            </Menu>
+                                        </Box>
+
+                                        {task.dueDate && (
+                                            <Button
+                                                variant="text"
+                                                size="small"
+                                                color="inherit"
+                                                className="date-button"
+                                                sx={{
+                                                    p: 0,
+                                                    minWidth: 0,
+                                                    textTransform: 'none',
+                                                    borderRadius: '6px',
+                                                    mt: 0.5
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {formatDueDateLabel(task.dueDate, task.dueTime)}
+                                            </Button>
+                                        )}
+                                    </Box>
+                                </Box>
+
                             ))
                         )}
                     </List>
