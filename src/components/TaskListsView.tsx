@@ -21,7 +21,7 @@ import {
     TextField,
     ListItem,
     Popper,
-    ClickAwayListener, Paper
+    ClickAwayListener, Paper, Divider
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
@@ -275,8 +275,6 @@ export const TaskListsView: React.FC<{
         }
     };
 
-
-
     if (loading) {
         return (
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -362,8 +360,13 @@ export const TaskListsView: React.FC<{
                                                 open={Boolean(taskAnchorEl) && activeTaskId === task.id}
                                                 onClose={handleTaskMenuClose}
                                             >
-                                                <MenuItem onClick={() => handleUpdateTask(task.id)}>Update</MenuItem>
                                                 <MenuItem onClick={() => handleDeleteTask(task.id)}>Delete</MenuItem>
+                                                <Divider />
+                                                {details.map((list, index) => (
+                                                    <MenuItem key={list.id} onClick={() => console.log('Move to:', list.id)}>
+                                                        {list.title}
+                                                    </MenuItem>
+                                                ))}
                                             </Menu>
                                         </Box>
 
