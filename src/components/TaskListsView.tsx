@@ -6,7 +6,6 @@ import {
     Alert,
     Typography,
     List,
-    ListItemText,
     Checkbox,
     IconButton,
     Menu,
@@ -19,7 +18,6 @@ import {
     DialogContentText,
     DialogActions,
     TextField,
-    ListItem,
     Popper,
     ClickAwayListener, Paper, Divider
 } from '@mui/material';
@@ -38,7 +36,6 @@ import {
     updateTaskListName, updateTaskTasklist
 } from '../api/tasks';
 import {TaskListDetail, TaskListSummary} from '../types';
-import logoUrl from "../assets/Logo-Mandai-EquaGreen.svg";
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
     const date = parseISO(dateString);
