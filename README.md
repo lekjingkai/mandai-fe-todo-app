@@ -3,7 +3,7 @@
 ### `npm install`
 ### `npm start`
 
-Technologies Used
+# Technologies Used:
 
 TypeScript (strict typing across React components and API)
 
