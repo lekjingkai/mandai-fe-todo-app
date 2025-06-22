@@ -345,9 +345,25 @@ export const TaskListsView: React.FC<{
 
     return (
         <>
-        <Box component="main" sx={{ flexGrow: 1, p: 2, display: 'flex', overflowX: 'auto' }}>
+        <Box component="main"   sx={{
+            flexGrow: 1,
+            p: 2,
+            display: 'flex',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch', // smooth scrolling on iOS
+        }}>
             {details.map(list => (
-                <Box key={list.id} sx={{ minWidth: 300, mr: 2, background: "#faf5e8", borderRadius: 5 }}>
+                <Box key={list.id}     sx={{
+                    // snap each section to the left edge
+                    scrollSnapAlign: 'center',   // snap each box to center
+                    // avoid shrinking & set width responsively:
+                    flex: '0 0 auto',
+                    width: { xs: '100%', sm: 300 },
+                    mr: 2,
+                    background: '#faf5e8',
+                    borderRadius: 5,
+                }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" className="tasklist-box">
                         <Typography style={{fontWeight: 600}}>{list.title}</Typography>
                         <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>

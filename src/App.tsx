@@ -1,20 +1,29 @@
 // src/App.tsx
 import React, { useState, useEffect } from 'react';
-import { CssBaseline, Box, useMediaQuery, useTheme } from '@mui/material';
+import { CssBaseline, Box, useTheme, useMediaQuery } from '@mui/material';
 import NavBar from './components/NavBar';
 import Sidebar from './components/Sidebar';
 import TaskListsView from './components/TaskListsView';
 import { TaskListSummary } from './types';
+import { fetchTaskListSummaries } from './api/tasks';
 
 const App: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    // default: hide sidebar on mobile, show on desktop
-    const [sidebarOpen, setSidebarOpen] = useState(() => !isMobile);
+    // sidebarOpen still controls visibility,
+    // but summaries load regardless
+    const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
     const [taskListSummaries, setTaskListSummaries] = useState<TaskListSummary[]>([]);
 
-    // re-sync when screen size changes
+    // 1) always fetch lists on mount
+    useEffect(() => {
+        fetchTaskListSummaries()
+            .then(data => setTaskListSummaries(data))
+            .catch(err => console.error(err));
+    }, []);
+
+    // 2) re-sync sidebar visibility when resizing
     useEffect(() => {
         setSidebarOpen(!isMobile);
     }, [isMobile]);
@@ -30,11 +39,11 @@ const App: React.FC = () => {
                     display: 'flex',
                     flexDirection: 'row',
                     position: 'absolute',
-                    top: '64px', // height of your AppBar
+                    top: '64px',          // below the AppBar
                     left: 0,
                     right: 0,
-                    bottom: 0,
-                    overflow: 'hidden',
+                    bottom: 0,            // fills to bottom
+                    overflow: 'hidden',   // hide BOTH axes by default
                     backgroundColor: '#faebcd',
                 }}
             >
