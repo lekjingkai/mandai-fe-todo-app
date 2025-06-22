@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Button,
@@ -15,23 +15,35 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl
 } from '@mui/material';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-import {fetchTaskListSummaries, updateTaskListEnabled, createTaskList} from '../api/tasks';
+import { fetchTaskListSummaries, updateTaskListEnabled, createTaskList } from '../api/tasks';
+import { createTask } from '../api/tasks';
 import '../style/Sidebar.css';
-import {TaskListSummary} from '../types';
+import { TaskListSummary } from '../types';
 
 export const Sidebar: React.FC<{
     taskListSummaries: TaskListSummary[];
     setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>;
-}> = ({taskListSummaries, setTaskListSummaries}) => {
+}> = ({ taskListSummaries, setTaskListSummaries }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
     const [openModal, setOpenModal] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [selectedTab, setSelectedTab] = useState<'all' | 'starred'>('all');
+
+    const [taskModalOpen, setTaskModalOpen] = useState(false);
+    const [taskTitle, setTaskTitle] = useState('');
+    const [taskNotes, setTaskNotes] = useState('');
+    const [taskDueDate, setTaskDueDate] = useState('');
+    const [taskDueTime, setTaskDueTime] = useState('');
+    const [taskListId, setTaskListId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchTaskListSummaries()
@@ -47,14 +59,14 @@ export const Sidebar: React.FC<{
         const newEnabled = !current.enabled;
         setTaskListSummaries(prev =>
             prev.map(list =>
-                list.tasklistId === tasklistId ? {...list, enabled: newEnabled} : list
+                list.tasklistId === tasklistId ? { ...list, enabled: newEnabled } : list
             )
         );
 
         updateTaskListEnabled(tasklistId, newEnabled).catch(() => {
             setTaskListSummaries(prev =>
                 prev.map(list =>
-                    list.tasklistId === tasklistId ? {...list, enabled: current.enabled} : list
+                    list.tasklistId === tasklistId ? { ...list, enabled: current.enabled } : list
                 )
             );
         });
@@ -73,6 +85,26 @@ export const Sidebar: React.FC<{
         }
     };
 
+    const handleSaveTask = async () => {
+        if (!taskTitle.trim()) return;
+        try {
+            await createTask({
+                tasklistId: taskListId || undefined,
+                title: taskTitle,
+                notes: taskNotes || undefined,
+                dueDate: taskDueDate || undefined,
+                dueTime: taskDueTime || undefined
+            });
+            setTaskModalOpen(false);
+            setTaskTitle('');
+            setTaskNotes('');
+            setTaskDueDate('');
+            setTaskDueTime('');
+            setTaskListId(null);
+        } catch (err) {
+            console.error('Failed to create task:', err);
+        }
+    };
 
     return (
         <Box
@@ -88,7 +120,7 @@ export const Sidebar: React.FC<{
                 padding: '12px 8px 0',
             }}
         >
-            <Button variant="contained" fullWidth sx={{mb: 2}}>
+            <Button variant="contained" fullWidth sx={{ mb: 2 }} onClick={() => setTaskModalOpen(true)}>
                 CREATE
             </Button>
 
@@ -98,10 +130,8 @@ export const Sidebar: React.FC<{
                     selected={selectedTab === 'all'}
                     onClick={() => setSelectedTab('all')}
                 >
-                    <ListItemIcon>
-                        <TaskAltIcon style={{marginRight: '5px'}}/>
-                    </ListItemIcon>
-                    <ListItemText primary="All tasks"/>
+                    <ListItemIcon><TaskAltIcon style={{marginRight: '5px'}}/></ListItemIcon>
+                    <ListItemText primary="All tasks" />
                 </ListItemButton>
 
                 <ListItemButton
@@ -109,48 +139,40 @@ export const Sidebar: React.FC<{
                     selected={selectedTab === 'starred'}
                     onClick={() => setSelectedTab('starred')}
                 >
-                    <ListItemIcon>
-                        <StarBorderIcon style={{marginRight: '5px'}}/>
-                    </ListItemIcon>
-                    <ListItemText primary="Starred"/>
+                    <ListItemIcon><StarBorderIcon style={{marginRight: '5px'}}/></ListItemIcon>
+                    <ListItemText primary="Starred" />
                 </ListItemButton>
             </List>
 
-            <Divider sx={{my: 2}}/>
+            <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2" gutterBottom style={{padding: '0 5px'}}>
+            <Typography variant="subtitle2" gutterBottom style={{ padding: '0 5px' }}>
                 LISTS:
             </Typography>
 
             {loading ? (
-                <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                    <CircularProgress size={24}/>
-                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}><CircularProgress size={24} /></Box>
             ) : error ? (
                 <Typography color="error">{error}</Typography>
             ) : (
                 <List>
                     {taskListSummaries.map(list => (
-                        <ListItemButton key={list.tasklistId} className="taskListItem"
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            handleCheckboxToggle(list.tasklistId);
-                                        }}
+                        <ListItemButton
+                            key={list.tasklistId}
+                            className="taskListItem"
+                            onClick={e => {
+                                e.stopPropagation();
+                                handleCheckboxToggle(list.tasklistId);
+                            }}
                         >
                             <ListItemIcon className="checkboxIcon">
-                                <Checkbox
-                                    checked={list.enabled}
-                                />
+                                <Checkbox checked={list.enabled} />
                             </ListItemIcon>
                             <ListItemText
-                                primary={
-                                    <div className="taskTitleContainer">
-                                        <span className="taskTitle">{list.title}</span>
-                                        {list.amount > 0 && (
-                                            <span className="taskCount">{list.amount}</span>
-                                        )}
-                                    </div>
-                                }
+                                primary={<div className="taskTitleContainer">
+                                    <span className="taskTitle">{list.title}</span>
+                                    {list.amount > 0 && <span className="taskCount">{list.amount}</span>}
+                                </div>}
                             />
                         </ListItemButton>
                     ))}
@@ -160,7 +182,7 @@ export const Sidebar: React.FC<{
             <Button
                 variant="outlined"
                 fullWidth
-                sx={{mt: 2}}
+                sx={{ mt: 2 }}
                 onClick={() => setOpenModal(true)}
             >
                 + New List
@@ -181,6 +203,63 @@ export const Sidebar: React.FC<{
                 <DialogActions>
                     <Button onClick={() => setOpenModal(false)}>Cancel</Button>
                     <Button onClick={handleCreate} variant="contained">Done</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={taskModalOpen} onClose={() => setTaskModalOpen(false)}>
+                <DialogTitle>Create a new task</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        autoFocus
+                        margin="dense"
+                        label="Title"
+                        value={taskTitle}
+                        onChange={e => setTaskTitle(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Notes"
+                        value={taskNotes}
+                        onChange={e => setTaskNotes(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        type="date"
+                        label="Due Date"
+                        InputLabelProps={{ shrink: true }}
+                        value={taskDueDate}
+                        onChange={e => setTaskDueDate(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        type="time"
+                        label="Due Time"
+                        InputLabelProps={{ shrink: true }}
+                        value={taskDueTime}
+                        onChange={e => setTaskDueTime(e.target.value)}
+                    />
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="tasklist-select-label">Task List</InputLabel>
+                        <Select
+                            labelId="tasklist-select-label"
+                            value={taskListId ?? ''}
+                            onChange={e => setTaskListId(e.target.value || null)}
+                            label="Task List"
+                        >
+                            <MenuItem value="">My Tasks</MenuItem>
+                            {taskListSummaries.map(list => (
+                                <MenuItem key={list.tasklistId} value={list.tasklistId}>{list.title}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setTaskModalOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSaveTask} variant="contained">Save</Button>
                 </DialogActions>
             </Dialog>
         </Box>

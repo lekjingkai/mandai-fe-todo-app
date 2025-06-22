@@ -1,5 +1,5 @@
 import api from './client';
-import {Task, TaskListDetail, TaskListSummary} from '../types';
+import {CreateTaskPayload, Task, TaskListDetail, TaskListSummary} from '../types';
 
 export const fetchTaskListSummaries = (): Promise<TaskListSummary[]> =>
     api
@@ -28,3 +28,7 @@ export const updateTaskListEnabled = (id: string, enabled: boolean) =>
 
 export const createTaskList = (title: string): Promise<TaskListSummary> =>
     api.post('/todo/tasklists', { title }).then(res => res.data);
+
+export const createTask = (task: CreateTaskPayload): Promise<void> => {
+    return api.post('/todo/task', task);
+};

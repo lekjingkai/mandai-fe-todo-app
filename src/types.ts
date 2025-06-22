@@ -21,3 +21,13 @@ export interface TaskListDetail {
     enabled: boolean;
     tasks:   Task[];
 }
+
+// src/types.ts
+
+export interface CreateTaskPayload {
+    tasklistId?: string;     // optional: null or string
+    title: string;           // required
+    notes?: string;          // optional
+    dueDate?: string;        // optional: format "YYYY-MM-DD"
+    dueTime?: string;        // optional: format "HH:mm:ss"
+}
