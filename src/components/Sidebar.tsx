@@ -19,7 +19,7 @@ import {
     MenuItem,
     Select,
     InputLabel,
-    FormControl
+    FormControl, useMediaQuery, useTheme
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -33,6 +33,9 @@ export const Sidebar: React.FC<{
     taskListSummaries: TaskListSummary[];
     setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>;
 }> = ({ taskListSummaries, setTaskListSummaries }) => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
     const [openModal, setOpenModal] = useState(false);
@@ -116,12 +119,14 @@ export const Sidebar: React.FC<{
         <Box
             component="nav"
             sx={{
-                width: 240,
+                width: { xs: '100%', sm: 240 },
                 flexShrink: 0,
+                position: { xs: 'absolute', sm: 'relative' },
+                top: { xs: 0, sm: 'auto' },
+                left: 0,
+                zIndex: { xs: theme.zIndex.drawer + 1, sm: 'auto' },
                 backgroundColor: '#faf5e8',
                 height: '100vh',
-                borderRight: 1,
-                borderColor: 'divider',
                 p: 2,
                 padding: '12px 8px 0',
             }}

@@ -1,6 +1,12 @@
 // src/components/NavBar.tsx
 import React from 'react';
-import {AppBar, Toolbar, IconButton, Typography, Box} from '@mui/material';
+import {
+    AppBar,
+    Toolbar,
+    IconButton,
+    Typography,
+    Box,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import logoUrl from '../style/Logo-Mandai-EquaGreen.svg';
 
@@ -9,12 +15,11 @@ interface NavBarProps {
     title?: string;
 }
 
-
 const NavBar: React.FC<NavBarProps> = ({
                                            onToggleSidebar,
                                            title = 'MyTodoApp',
                                        }) => (
-    <AppBar position="static" sx={{bgcolor: '#faf5e8', color: '#063200'}}>
+    <AppBar position="static" sx={{ bgcolor: '#faf5e8', color: '#063200' }}>
         <Toolbar>
             <IconButton
                 edge="start"
@@ -26,8 +31,14 @@ const NavBar: React.FC<NavBarProps> = ({
                 <MenuIcon />
             </IconButton>
 
-            {/* make this flex container grow if you ever add icons on the right */}
-            <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+            <Box
+                display="flex"
+                alignItems="center"
+                sx={{
+                    flexGrow: 1,
+                    justifyContent: { xs: 'center', sm: 'flex-start' },
+                }}
+            >
                 <img
                     src={logoUrl}
                     alt="logo"
