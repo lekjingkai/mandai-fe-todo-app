@@ -178,8 +178,8 @@ export const TaskListsView: React.FC<{
                             open={Boolean(anchorEl) && menuListId === list.id}
                             onClose={handleMenuClose}
                         >
-                            <MenuItem onClick={handleRename}>Rename</MenuItem>
-                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                            <MenuItem onClick={handleRename} disabled={!list.id}>Rename</MenuItem>
+                            <MenuItem onClick={handleDelete} disabled={!list.id}>Delete</MenuItem>
                         </Menu>
                     </Box>
                     <List disablePadding>
