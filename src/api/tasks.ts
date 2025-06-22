@@ -55,3 +55,7 @@ export const updateTask = (id: string, title: string, notes: string, dueDate: st
 
 export const updateTaskTasklist = (id: string, tasklistId: string) =>
     api.put('/todo/task', { id, tasklistId });
+
+export const deleteTask = (id: string): Promise<void> => {
+    return api.delete(`/todo/task/${id}`);
+};

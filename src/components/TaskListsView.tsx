@@ -29,6 +29,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
+    deleteTask,
     deleteTaskList,
     fetchTaskListDetail, updateTask,
     updateTaskCompleted,
@@ -188,10 +189,24 @@ export const TaskListsView: React.FC<{
         handleTaskMenuClose();
     };
 
-    const handleDeleteTask = (taskId: string) => {
-        console.log('Delete task:', taskId);
-        handleTaskMenuClose();
+    const handleDeleteTask = async (taskId: string) => {
+        try {
+            await deleteTask(taskId);
+
+            setDetails(prev =>
+                prev.map(list => ({
+                    ...list,
+                    tasks: list.tasks.filter(task => task.id !== taskId),
+                }))
+            );
+        } catch (err) {
+            console.error('Failed to delete task:', err);
+            // Optionally show an error UI
+        } finally {
+            handleTaskMenuClose();
+        }
     };
+
 
     const handleTaskClick = (taskId: string) => {
         console.log('Task clicked:', taskId);
@@ -369,7 +384,7 @@ export const TaskListsView: React.FC<{
                                                 </MenuItem>
                                                 <Divider />
                                                 {details.map((dropdownList) => (
-                                                    <MenuItem key={dropdownList.id} onClick={() => console.log('Move to:', dropdownList.id)}>
+                                                    <MenuItem key={dropdownList.id} onClick={() => handleDeleteTask(task.id)}>
                                                         {dropdownList.title === list.title && (
                                                             <ListItemIcon>
                                                                 <CheckIcon fontSize="small" />
