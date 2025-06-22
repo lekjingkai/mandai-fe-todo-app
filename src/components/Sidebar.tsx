@@ -43,7 +43,9 @@ export const Sidebar: React.FC<{
     const [taskNotes, setTaskNotes] = useState('');
     const [taskDueDate, setTaskDueDate] = useState('');
     const [taskDueTime, setTaskDueTime] = useState('');
-    const [taskListId, setTaskListId] = useState<string | null>(null);
+    // const [taskListId, setTaskListId] = useState<string | null>(null);
+    const [taskListId, setTaskListId] = useState<string | null>('default');
+
 
     useEffect(() => {
         fetchTaskListSummaries()
@@ -88,8 +90,9 @@ export const Sidebar: React.FC<{
     const handleSaveTask = async () => {
         if (!taskTitle.trim()) return;
         try {
+            const actualTaskListId = taskListId === 'default' ? null : taskListId;
             await createTask({
-                tasklistId: taskListId || undefined,
+                tasklistId: actualTaskListId || undefined,
                 title: taskTitle,
                 notes: taskNotes || undefined,
                 dueDate: taskDueDate || undefined,
@@ -101,6 +104,8 @@ export const Sidebar: React.FC<{
             setTaskDueDate('');
             setTaskDueTime('');
             setTaskListId(null);
+            const updatedLists = await fetchTaskListSummaries();
+            setTaskListSummaries(updatedLists);
         } catch (err) {
             console.error('Failed to create task:', err);
         }
@@ -249,8 +254,16 @@ export const Sidebar: React.FC<{
                             value={taskListId ?? ''}
                             onChange={e => setTaskListId(e.target.value || null)}
                             label="Task List"
+                            renderValue={(selected) => {
+                                if (!selected || selected == 'default') {
+                                    return <span>My Tasks</span>;
+                                }
+                                const list = taskListSummaries.find(l => l.tasklistId === selected);
+                                return <span>{list ? list.title : 'Unknown'}</span>;
+                            }}
+
                         >
-                            <MenuItem value="">My Tasks</MenuItem>
+                            <MenuItem value='default'>My Tasks</MenuItem>
                             {taskListSummaries.map(list => (
                                 <MenuItem key={list.tasklistId} value={list.tasklistId}>{list.title}</MenuItem>
                             ))}
