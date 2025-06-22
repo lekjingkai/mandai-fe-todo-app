@@ -32,3 +32,7 @@ export const createTaskList = (title: string): Promise<TaskListSummary> =>
 export const createTask = (task: CreateTaskPayload): Promise<void> => {
     return api.post('/todo/task', task);
 };
+
+export const deleteTaskList = (id: string): Promise<void> => {
+    return api.delete(`/todo/tasklists/${id}`);
+};

@@ -13,11 +13,11 @@ import {
     Menu,
     MenuItem,
     ListItemIcon,
-    Button
+    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-import { fetchTaskListDetail } from '../api/tasks';
+import {deleteTaskList, fetchTaskListDetail} from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
@@ -50,6 +50,8 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
     const [menuListId, setMenuListId] = useState<string | null>(null);
     const [taskAnchorEl, setTaskAnchorEl] = useState<null | HTMLElement>(null);
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
 
     useEffect(() => {
         const promises = [
@@ -90,7 +92,17 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
 
     const handleDelete = () => {
         console.log('Delete list:', menuListId);
-        handleMenuClose();
+        setConfirmDeleteOpen(true);
+    };
+
+
+    const confirmDeleteList = async () => {
+        console.log('confirmDeleteList:', menuListId);
+        if (menuListId) {
+            await deleteTaskList(menuListId);
+            setDetails(prev => prev.filter(d => d.id !== menuListId));
+        }
+        setConfirmDeleteOpen(false);
     };
 
     const handleUpdateTask = (taskId: string) => {
@@ -116,6 +128,7 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
     }
 
     return (
+        <>
         <Box component="main" sx={{ flexGrow: 1, p: 2, display: 'flex', overflowX: 'auto' }}>
             {details.map(list => (
                 <Box key={list.id} sx={{ minWidth: 300, mr: 2, background: "#f5f5f5", borderRadius: 5 }}>
@@ -200,6 +213,21 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
                 </Box>
             ))}
         </Box>
+
+
+            <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+                <DialogTitle>Delete this list?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        All tasks in this list will be permanently deleted.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmDeleteOpen(false)} color="inherit">Cancel</Button>
+                    <Button onClick={confirmDeleteList} color="error">Delete</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
 
