@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -24,15 +24,15 @@ import {
 import Grid from '@mui/material/Grid';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-import { fetchTaskListSummaries, updateTaskListEnabled, createTaskList } from '../api/tasks';
-import { createTask } from '../api/tasks';
+import {fetchTaskListSummaries, updateTaskListEnabled, createTaskList} from '../api/tasks';
+import {createTask} from '../api/tasks';
 import '../style/Sidebar.css';
-import { TaskListSummary } from '../types';
+import {TaskListSummary} from '../types';
 
 export const Sidebar: React.FC<{
     taskListSummaries: TaskListSummary[];
     setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>;
-}> = ({ taskListSummaries, setTaskListSummaries }) => {
+}> = ({taskListSummaries, setTaskListSummaries}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -65,14 +65,14 @@ export const Sidebar: React.FC<{
         const newEnabled = !current.enabled;
         setTaskListSummaries(prev =>
             prev.map(list =>
-                list.tasklistId === tasklistId ? { ...list, enabled: newEnabled } : list
+                list.tasklistId === tasklistId ? {...list, enabled: newEnabled} : list
             )
         );
 
         updateTaskListEnabled(tasklistId, newEnabled).catch(() => {
             setTaskListSummaries(prev =>
                 prev.map(list =>
-                    list.tasklistId === tasklistId ? { ...list, enabled: current.enabled } : list
+                    list.tasklistId === tasklistId ? {...list, enabled: current.enabled} : list
                 )
             );
         });
@@ -119,19 +119,20 @@ export const Sidebar: React.FC<{
         <Box
             component="nav"
             sx={{
-                width: { xs: '100%', sm: 240 },
+                width: {xs: '100%', sm: 240},
                 flexShrink: 0,
-                position: { xs: 'absolute', sm: 'relative' },
-                top: { xs: 0, sm: 'auto' },
+                position: {xs: 'absolute', sm: 'relative'},
+                top: {xs: 0, sm: 'auto'},
                 left: 0,
-                zIndex: { xs: theme.zIndex.drawer + 1, sm: 'auto' },
+                zIndex: {xs: theme.zIndex.drawer + 1, sm: 'auto'},
                 backgroundColor: '#faf5e8',
                 height: '100vh',
                 p: 2,
                 padding: '12px 8px 0',
             }}
         >
-            <Button variant="contained" fullWidth sx={{ mb: 2, backgroundColor: "#063200", color: "#faf5e8" }} onClick={() => setTaskModalOpen(true)}>
+            <Button variant="contained" fullWidth sx={{mb: 2, backgroundColor: "#063200", color: "#faf5e8"}}
+                    onClick={() => setTaskModalOpen(true)}>
                 Create
             </Button>
 
@@ -142,7 +143,7 @@ export const Sidebar: React.FC<{
                     onClick={() => setSelectedTab('all')}
                 >
                     <ListItemIcon><TaskAltIcon style={{marginRight: '5px'}}/></ListItemIcon>
-                    <ListItemText primary="All tasks" />
+                    <ListItemText primary="All tasks"/>
                 </ListItemButton>
 
                 <ListItemButton
@@ -151,18 +152,18 @@ export const Sidebar: React.FC<{
                     onClick={() => setSelectedTab('starred')}
                 >
                     <ListItemIcon><StarBorderIcon style={{marginRight: '5px'}}/></ListItemIcon>
-                    <ListItemText primary="Starred" />
+                    <ListItemText primary="Starred"/>
                 </ListItemButton>
             </List>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{my: 2}}/>
 
-            <Typography variant="subtitle2" gutterBottom style={{ padding: '0 5px' }}>
+            <Typography variant="subtitle2" gutterBottom style={{padding: '0 5px'}}>
                 LISTS:
             </Typography>
 
             {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}><CircularProgress size={24} /></Box>
+                <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}><CircularProgress size={24}/></Box>
             ) : error ? (
                 <Typography color="error">{error}</Typography>
             ) : (
@@ -177,12 +178,12 @@ export const Sidebar: React.FC<{
                             }}
                         >
                             <ListItemIcon className="checkboxIcon">
-                                <Checkbox  checked={list.enabled}
-                                           sx={{
-                                               '&.Mui-checked': {
-                                                   color: '#000',      // make the check‐icon black
-                                               },
-                                           }}
+                                <Checkbox checked={list.enabled}
+                                          sx={{
+                                              '&.Mui-checked': {
+                                                  color: '#000',      // make the check‐icon black
+                                              },
+                                          }}
                                 />
                             </ListItemIcon>
                             <ListItemText
@@ -199,7 +200,7 @@ export const Sidebar: React.FC<{
             <Button
                 variant="outlined"
                 fullWidth
-                sx={{ mt: 2, color: "#063200", borderColor: '#063200' }}
+                sx={{mt: 2, color: "#063200", borderColor: '#063200'}}
                 onClick={() => setOpenModal(true)}
             >
                 Create new list
@@ -226,19 +227,20 @@ export const Sidebar: React.FC<{
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenModal(false)} sx={{ color: "#063200" }}>Cancel</Button>
-                    <Button onClick={handleCreate} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Done</Button>
+                    <Button onClick={() => setOpenModal(false)} sx={{color: "#063200"}}>Cancel</Button>
+                    <Button onClick={handleCreate} variant="contained"
+                            sx={{backgroundColor: "#063200", color: "#faf5e8"}}>Done</Button>
                 </DialogActions>
             </Dialog>
 
             <Dialog open={taskModalOpen} onClose={() => setTaskModalOpen(false)}
                     slotProps={{
-                paper: {
-                    sx: {
-                        bgcolor: '#faf5e8', // your desired background
-                    }
-                }
-            }}>
+                        paper: {
+                            sx: {
+                                bgcolor: '#faf5e8', // your desired background
+                            }
+                        }
+                    }}>
                 <DialogTitle>Create a new task</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -257,29 +259,29 @@ export const Sidebar: React.FC<{
                         onChange={e => setTaskNotes(e.target.value)}
                     />
                     <Grid container spacing={2}>
-                            <Box component="div">
-                                <TextField
-                                    fullWidth
-                                    margin="dense"
-                                    type="date"
-                                    label="Due Date"
-                                    InputLabelProps={{ shrink: true }}
-                                    value={taskDueDate}
-                                    onChange={e => setTaskDueDate(e.target.value)}
-                                />
-                            </Box>
-                            <Box component="div">
-                                <TextField
-                                    fullWidth
-                                    margin="dense"
-                                    type="time"
-                                    label="Due Time"
-                                    InputLabelProps={{ shrink: true }}
-                                    value={taskDueTime}
-                                    onChange={e => setTaskDueTime(e.target.value)}
-                                />
-                            </Box>
-                        </Grid>
+                        <Box component="div">
+                            <TextField
+                                fullWidth
+                                margin="dense"
+                                type="date"
+                                label="Due Date"
+                                InputLabelProps={{shrink: true}}
+                                value={taskDueDate}
+                                onChange={e => setTaskDueDate(e.target.value)}
+                            />
+                        </Box>
+                        <Box component="div">
+                            <TextField
+                                fullWidth
+                                margin="dense"
+                                type="time"
+                                label="Due Time"
+                                InputLabelProps={{shrink: true}}
+                                value={taskDueTime}
+                                onChange={e => setTaskDueTime(e.target.value)}
+                            />
+                        </Box>
+                    </Grid>
                     <FormControl fullWidth margin="dense">
                         <InputLabel id="tasklist-select-label">Task List</InputLabel>
                         <Select
@@ -301,8 +303,9 @@ export const Sidebar: React.FC<{
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setTaskModalOpen(false)} sx={{ color: "#063200" }}>Cancel</Button>
-                    <Button onClick={handleSaveTask} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Save</Button>
+                    <Button onClick={() => setTaskModalOpen(false)} sx={{color: "#063200"}}>Cancel</Button>
+                    <Button onClick={handleSaveTask} variant="contained"
+                            sx={{backgroundColor: "#063200", color: "#faf5e8"}}>Save</Button>
                 </DialogActions>
             </Dialog>
         </Box>

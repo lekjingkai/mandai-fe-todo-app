@@ -1,5 +1,5 @@
 // src/components/TaskListsView.tsx
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     CircularProgress,
@@ -28,7 +28,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import pandaLogo from '../assets/no-task-panda.svg';
 
-import { format, isToday, isTomorrow, parseISO } from 'date-fns';
+import {format, isToday, isTomorrow, parseISO} from 'date-fns';
 import {
     deleteTask,
     deleteTaskList,
@@ -37,7 +37,7 @@ import {
     updateTaskDatetime,
     updateTaskListName, updateTaskTasklist
 } from '../api/tasks';
-import { TaskListDetail, TaskListSummary } from '../types';
+import {TaskListDetail, TaskListSummary} from '../types';
 import logoUrl from "../assets/Logo-Mandai-EquaGreen.svg";
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
@@ -65,7 +65,7 @@ const formatDueDateLabel = (dateString: string, timeString?: string): string => 
 export const TaskListsView: React.FC<{
     enabledTaskLists: TaskListSummary[],
     setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>
-}> = ({ enabledTaskLists, setTaskListSummaries }) => {
+}> = ({enabledTaskLists, setTaskListSummaries}) => {
 
     const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
@@ -78,16 +78,21 @@ export const TaskListsView: React.FC<{
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [renameValue, setRenameValue] = useState('');
     const [anchorElEdit, setAnchorElEdit] = useState<null | HTMLElement>(null);
-    const [editingTask, setEditingTask] = useState<{ id: string; title: string; notes?: string; dueDate?: string; dueTime?: string } | null>(null);
+    const [editingTask, setEditingTask] = useState<{
+        id: string;
+        title: string;
+        notes?: string;
+        dueDate?: string;
+        dueTime?: string
+    } | null>(null);
     const handleEditTaskClick = (
         event: React.MouseEvent<HTMLElement>,
         task: { id: string; title: string; notes?: string; dueDate?: string; dueTime?: string }
     ) => {
         event.stopPropagation();
         setAnchorElEdit(event.currentTarget);
-        setEditingTask({ ...task });
+        setEditingTask({...task});
     };
-
 
 
     useEffect(() => {
@@ -108,7 +113,11 @@ export const TaskListsView: React.FC<{
     const [taskDueDate, setTaskDueDate] = useState('');
 
 
-    const handleDueDateClick = (event: React.MouseEvent<HTMLElement>, task: { id: string, dueDate?: string, dueTime?: string }) => {
+    const handleDueDateClick = (event: React.MouseEvent<HTMLElement>, task: {
+        id: string,
+        dueDate?: string,
+        dueTime?: string
+    }) => {
         event.stopPropagation();
         setAnchorElDate(anchorEl ? null : event.currentTarget);
         setEditingTaskId(task.id);
@@ -151,14 +160,14 @@ export const TaskListsView: React.FC<{
             // Update task list title in view
             setDetails(prev =>
                 prev.map(d =>
-                    d.id === menuListId ? { ...d, title: updated.title } : d
+                    d.id === menuListId ? {...d, title: updated.title} : d
                 )
             );
 
             // Update sidebar summaries
             setTaskListSummaries(prev =>
                 prev.map(s =>
-                    s.tasklistId === menuListId ? { ...s, title: updated.title } : s
+                    s.tasklistId === menuListId ? {...s, title: updated.title} : s
                 )
             );
         } catch (err) {
@@ -244,8 +253,6 @@ export const TaskListsView: React.FC<{
     };
 
 
-
-
     const handleTaskClick = (taskId: string) => {
         console.log('Task clicked:', taskId);
     };
@@ -259,7 +266,7 @@ export const TaskListsView: React.FC<{
                     : {
                         ...list,
                         tasks: list.tasks.map(task =>
-                            task.id === taskId ? { ...task, completed: !currentCompleted } : task
+                            task.id === taskId ? {...task, completed: !currentCompleted} : task
                         ),
                     }
             )
@@ -275,7 +282,7 @@ export const TaskListsView: React.FC<{
                         : {
                             ...list,
                             tasks: list.tasks.map(task =>
-                                task.id === taskId ? { ...task, completed: currentCompleted } : task
+                                task.id === taskId ? {...task, completed: currentCompleted} : task
                             ),
                         }
                 )
@@ -296,7 +303,7 @@ export const TaskListsView: React.FC<{
                     ...list,
                     tasks: list.tasks.map(task =>
                         task.id === editingTaskId
-                            ? { ...task, dueDate: taskDueDate, dueTime: taskDueTime }
+                            ? {...task, dueDate: taskDueDate, dueTime: taskDueTime}
                             : task
                     )
                 }))
@@ -319,7 +326,7 @@ export const TaskListsView: React.FC<{
                     ...list,
                     tasks: list.tasks.map(task =>
                         task.id === editingTask.id
-                            ? { ...task, ...editingTask }
+                            ? {...task, ...editingTask}
                             : task
                     )
                 }))
@@ -333,184 +340,186 @@ export const TaskListsView: React.FC<{
 
     if (loading) {
         return (
-            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CircularProgress />
+            <Box sx={{flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <CircularProgress/>
             </Box>
         );
     }
 
     if (error) {
-        return <Alert severity="error" sx={{ flexGrow: 1 }}>{error}</Alert>;
+        return <Alert severity="error" sx={{flexGrow: 1}}>{error}</Alert>;
     }
 
     return (
         <>
-        <Box component="main"   sx={{
-            flexGrow: 1,
-            p: 2,
-            display: 'flex',
-            overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch', // smooth scrolling on iOS
-        }}>
-            {details.map(list => (
-                <Box key={list.id}     sx={{
-                    // snap each section to the left edge
-                    scrollSnapAlign: 'center',   // snap each box to center
-                    // avoid shrinking & set width responsively:
-                    flex: '0 0 auto',
-                    width: { xs: '100%', sm: 300 },
-                    mr: 2,
-                    background: '#faf5e8',
-                    borderRadius: 5,
-                }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" className="tasklist-box">
-                        <Typography style={{fontWeight: 600}}>{list.title}</Typography>
-                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
-                            <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl) && menuListId === list.id}
-                            onClose={handleMenuClose}
-                            slotProps={{
-                                paper: {
-                                    sx: {
-                                        bgcolor: '#faf5e8', // your desired background
+            <Box component="main" sx={{
+                flexGrow: 1,
+                p: 2,
+                display: 'flex',
+                overflowX: 'auto',
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch', // smooth scrolling on iOS
+            }}>
+                {details.map(list => (
+                    <Box key={list.id} sx={{
+                        // snap each section to the left edge
+                        scrollSnapAlign: 'center',   // snap each box to center
+                        // avoid shrinking & set width responsively:
+                        flex: '0 0 auto',
+                        width: {xs: '100%', sm: 300},
+                        mr: 2,
+                        background: '#faf5e8',
+                        borderRadius: 5,
+                    }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" className="tasklist-box">
+                            <Typography style={{fontWeight: 600}}>{list.title}</Typography>
+                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
+                                <MoreVertIcon fontSize="small"/>
+                            </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl) && menuListId === list.id}
+                                onClose={handleMenuClose}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            bgcolor: '#faf5e8', // your desired background
+                                        }
                                     }
-                                }
-                            }}
-                        >
-                            <MenuItem onClick={handleRename} disabled={!list.id}>Rename</MenuItem>
-                            <MenuItem onClick={handleDelete} disabled={!list.id}>Delete</MenuItem>
-                        </Menu>
-                    </Box>
-                    <List disablePadding>
-                        {list.tasks.length === 0 ? (
-                            <Box sx={{ px: 2, py: 4, textAlign: 'center' }}>
-                                <img
-                                    src={pandaLogo}
-                                    alt="logo"
-                                    width={150}
-                                    height={150}
-                                />
-                                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                    No tasks yet
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Add your to-dos and keep track of them here
-                                </Typography>
-                            </Box>
-                        ) : (
-                            list.tasks.map(task => (
-                                <Box
-                                    key={task.id}
-                                    onClick={() => handleTaskClick(task.id)}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        borderBottom: '1px solid #e0e0e0',
-                                        padding: '8px 16px',
-                                        cursor: 'pointer',
-                                        '&:hover': { backgroundColor: '#e1ddd1' },
-                                    }}
-                                    className="task-item"
-                                >
-                                    <ListItemIcon className="checkboxIcon">
-                                        <Checkbox
-                                            checked={task.completed}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                handleTaskCheckboxToggle(list.id, task.id, task.completed);
-                                            }}
-                                            sx={{
-                                                '&.Mui-checked': {
-                                                    color: '#000',      // make the check‐icon black
-                                                },
-                                            }}
-                                        />
-                                    </ListItemIcon>
-
-                                    <Box sx={{ flexGrow: 1 }} className="task-text-box">
-                                        <Box display="flex" justifyContent="space-between" alignItems="center" >
-                                            <Box onClick={(e) => handleEditTaskClick(e, task)} sx={{ cursor: 'pointer' }}>
-                                                <Typography className="title-text">{task.title}</Typography>
-                                                {task.notes && (
-                                                    <Typography className="notes-text">{task.notes}</Typography>
-                                                )}
-                                            </Box>
-                                            <IconButton
-                                                size="small"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleTaskMenuOpen(e, task.id);
-                                                }}
-                                            >
-                                                <MoreVertIcon fontSize="small" />
-                                            </IconButton>
-                                            <Menu
-                                                anchorEl={taskAnchorEl}
-                                                open={Boolean(taskAnchorEl) && activeTaskId === task.id}
-                                                onClose={handleTaskMenuClose}
-                                                slotProps={{
-                                                    paper: {
-                                                        sx: {
-                                                            bgcolor: '#faf5e8', // your desired background
-                                                        }
-                                                    }
-                                                }}
-                                            >
-                                                <MenuItem onClick={() => handleDeleteTask(task.id)}>
-                                                    <DeleteIcon/>
-                                                    <span style={{paddingLeft: '6px'}}>Delete</span>
-                                                </MenuItem>
-                                                <Divider />
-                                                {details.map((dropdownList) => (
-                                                    <MenuItem
-                                                        key={dropdownList.id}
-                                                        onClick={() => handleMoveTaskToAnotherList(task.id, list.id, dropdownList.id)}
-                                                    >
-                                                        {dropdownList.title === list.title && (
-                                                            <ListItemIcon>
-                                                                <CheckIcon fontSize="small" />
-                                                            </ListItemIcon>
-                                                        )}
-                                                        {dropdownList.title !== list.title && (
-                                                            <ListItemIcon sx={{ width: 24 }} />
-                                                        )}
-                                                        <span style={{paddingLeft: '6px'}}>{dropdownList.title}</span>
-                                                    </MenuItem>
-                                                ))}
-                                            </Menu>
-                                        </Box>
-
-                                        {task.dueDate && (
-                                            <Button
-                                                variant="text"
-                                                size="small"
-                                                color="inherit"
-                                                className="date-button"
-                                                sx={{
-                                                    p: 0,
-                                                    minWidth: 0,
-                                                    textTransform: 'none',
-                                                    borderRadius: '6px',
-                                                    mt: 0.5
-                                                }}
-                                                onClick={(e) => handleDueDateClick(e, task)}
-                                            >
-                                                {formatDueDateLabel(task.dueDate, task.dueTime)}
-                                            </Button>
-                                        )}
-                                    </Box>
+                                }}
+                            >
+                                <MenuItem onClick={handleRename} disabled={!list.id}>Rename</MenuItem>
+                                <MenuItem onClick={handleDelete} disabled={!list.id}>Delete</MenuItem>
+                            </Menu>
+                        </Box>
+                        <List disablePadding>
+                            {list.tasks.length === 0 ? (
+                                <Box sx={{px: 2, py: 4, textAlign: 'center'}}>
+                                    <img
+                                        src={pandaLogo}
+                                        alt="logo"
+                                        width={150}
+                                        height={150}
+                                    />
+                                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                                        No tasks yet
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Add your to-dos and keep track of them here
+                                    </Typography>
                                 </Box>
+                            ) : (
+                                list.tasks.map(task => (
+                                    <Box
+                                        key={task.id}
+                                        onClick={() => handleTaskClick(task.id)}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            borderBottom: '1px solid #e0e0e0',
+                                            padding: '8px 16px',
+                                            cursor: 'pointer',
+                                            '&:hover': {backgroundColor: '#e1ddd1'},
+                                        }}
+                                        className="task-item"
+                                    >
+                                        <ListItemIcon className="checkboxIcon">
+                                            <Checkbox
+                                                checked={task.completed}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    handleTaskCheckboxToggle(list.id, task.id, task.completed);
+                                                }}
+                                                sx={{
+                                                    '&.Mui-checked': {
+                                                        color: '#000',      // make the check‐icon black
+                                                    },
+                                                }}
+                                            />
+                                        </ListItemIcon>
 
-                            ))
-                        )}
-                    </List>
-                </Box>
-            ))}
-        </Box>
+                                        <Box sx={{flexGrow: 1}} className="task-text-box">
+                                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                                <Box onClick={(e) => handleEditTaskClick(e, task)}
+                                                     sx={{cursor: 'pointer'}}>
+                                                    <Typography className="title-text">{task.title}</Typography>
+                                                    {task.notes && (
+                                                        <Typography className="notes-text">{task.notes}</Typography>
+                                                    )}
+                                                </Box>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleTaskMenuOpen(e, task.id);
+                                                    }}
+                                                >
+                                                    <MoreVertIcon fontSize="small"/>
+                                                </IconButton>
+                                                <Menu
+                                                    anchorEl={taskAnchorEl}
+                                                    open={Boolean(taskAnchorEl) && activeTaskId === task.id}
+                                                    onClose={handleTaskMenuClose}
+                                                    slotProps={{
+                                                        paper: {
+                                                            sx: {
+                                                                bgcolor: '#faf5e8', // your desired background
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    <MenuItem onClick={() => handleDeleteTask(task.id)}>
+                                                        <DeleteIcon/>
+                                                        <span style={{paddingLeft: '6px'}}>Delete</span>
+                                                    </MenuItem>
+                                                    <Divider/>
+                                                    {details.map((dropdownList) => (
+                                                        <MenuItem
+                                                            key={dropdownList.id}
+                                                            onClick={() => handleMoveTaskToAnotherList(task.id, list.id, dropdownList.id)}
+                                                        >
+                                                            {dropdownList.title === list.title && (
+                                                                <ListItemIcon>
+                                                                    <CheckIcon fontSize="small"/>
+                                                                </ListItemIcon>
+                                                            )}
+                                                            {dropdownList.title !== list.title && (
+                                                                <ListItemIcon sx={{width: 24}}/>
+                                                            )}
+                                                            <span
+                                                                style={{paddingLeft: '6px'}}>{dropdownList.title}</span>
+                                                        </MenuItem>
+                                                    ))}
+                                                </Menu>
+                                            </Box>
+
+                                            {task.dueDate && (
+                                                <Button
+                                                    variant="text"
+                                                    size="small"
+                                                    color="inherit"
+                                                    className="date-button"
+                                                    sx={{
+                                                        p: 0,
+                                                        minWidth: 0,
+                                                        textTransform: 'none',
+                                                        borderRadius: '6px',
+                                                        mt: 0.5
+                                                    }}
+                                                    onClick={(e) => handleDueDateClick(e, task)}
+                                                >
+                                                    {formatDueDateLabel(task.dueDate, task.dueTime)}
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    </Box>
+
+                                ))
+                            )}
+                        </List>
+                    </Box>
+                ))}
+            </Box>
 
 
             <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}
@@ -555,21 +564,22 @@ export const TaskListsView: React.FC<{
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setRenameDialogOpen(false)} sx={{ color: "#063200" }}>Cancel</Button>
-                    <Button onClick={confirmRename} variant="contained" sx={{ backgroundColor: "#063200", color: "#faf5e8" }}>Rename</Button>
+                    <Button onClick={() => setRenameDialogOpen(false)} sx={{color: "#063200"}}>Cancel</Button>
+                    <Button onClick={confirmRename} variant="contained"
+                            sx={{backgroundColor: "#063200", color: "#faf5e8"}}>Rename</Button>
                 </DialogActions>
             </Dialog>
 
             <Popper open={Boolean(anchorElDate)} anchorEl={anchorElDate} placement="bottom-start" disablePortal>
                 <ClickAwayListener onClickAway={() => setAnchorElDate(null)}>
-                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea' }}>
+                    <Paper sx={{p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea'}}>
                         <Box display="flex" flexDirection="column" gap={1}>
                             <Box>
                                 <TextField
                                     fullWidth
                                     type="date"
                                     label="Due Date"
-                                    InputLabelProps={{ shrink: true }}
+                                    InputLabelProps={{shrink: true}}
                                     value={taskDueDate}
                                     onChange={(e) => setTaskDueDate(e.target.value)}
                                 />
@@ -579,13 +589,14 @@ export const TaskListsView: React.FC<{
                                     fullWidth
                                     type="time"
                                     label="Due Time"
-                                    InputLabelProps={{ shrink: true }}
+                                    InputLabelProps={{shrink: true}}
                                     value={taskDueTime}
                                     onChange={(e) => setTaskDueTime(e.target.value)}
                                 />
                             </Box>
                             <Box display="flex" justifyContent="flex-end" gap={1} mt={1}>
-                                <Button onClick={() => setAnchorElDate(null)} size="small" color="inherit">Cancel</Button>
+                                <Button onClick={() => setAnchorElDate(null)} size="small"
+                                        color="inherit">Cancel</Button>
                                 <Button
                                     onClick={handleSaveDueDate}
                                     size="small"
@@ -599,41 +610,48 @@ export const TaskListsView: React.FC<{
                 </ClickAwayListener>
             </Popper>
 
-            <Popper open={Boolean(anchorElEdit)} anchorEl={anchorElEdit} placement="bottom-start" disablePortal >
+            <Popper open={Boolean(anchorElEdit)} anchorEl={anchorElEdit} placement="bottom-start" disablePortal>
                 <ClickAwayListener onClickAway={() => setAnchorElEdit(null)}>
-                    <Paper variant="outlined"  sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea' }}>
+                    <Paper variant="outlined" sx={{p: 2, mt: 1, zIndex: 10, minWidth: 250, backgroundColor: '#fbf6ea'}}>
                         <Box display="flex" flexDirection="column" gap={1}>
                             <TextField
                                 label="Title"
                                 value={editingTask?.title || ''}
-                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                                onChange={(e) => setEditingTask(prev => prev ? {...prev, title: e.target.value} : prev)}
                                 fullWidth
                             />
                             <TextField
                                 label="Notes"
                                 value={editingTask?.notes || ''}
-                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, notes: e.target.value } : prev)}
+                                onChange={(e) => setEditingTask(prev => prev ? {...prev, notes: e.target.value} : prev)}
                                 fullWidth
                                 multiline
                             />
                             <TextField
                                 label="Due Date"
                                 type="date"
-                                InputLabelProps={{ shrink: true }}
+                                InputLabelProps={{shrink: true}}
                                 value={editingTask?.dueDate || ''}
-                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, dueDate: e.target.value } : prev)}
+                                onChange={(e) => setEditingTask(prev => prev ? {
+                                    ...prev,
+                                    dueDate: e.target.value
+                                } : prev)}
                                 fullWidth
                             />
                             <TextField
                                 label="Due Time"
                                 type="time"
-                                InputLabelProps={{ shrink: true }}
+                                InputLabelProps={{shrink: true}}
                                 value={editingTask?.dueTime || ''}
-                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, dueTime: e.target.value } : prev)}
+                                onChange={(e) => setEditingTask(prev => prev ? {
+                                    ...prev,
+                                    dueTime: e.target.value
+                                } : prev)}
                                 fullWidth
                             />
                             <Box display="flex" justifyContent="flex-end" gap={1}>
-                                <Button onClick={() => setAnchorElEdit(null)} size="small" color="inherit">Cancel</Button>
+                                <Button onClick={() => setAnchorElEdit(null)} size="small"
+                                        color="inherit">Cancel</Button>
                                 <Button
                                     onClick={handleSaveTaskEdit}
                                     size="small"

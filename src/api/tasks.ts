@@ -6,7 +6,6 @@ export const fetchTaskListSummaries = (): Promise<TaskListSummary[]> =>
         .get<TaskListSummary[]>('/todo')
         .then(res => res.data);
 
-// 2️⃣ Single list detail (from http://localhost:4000/todo/tasklists?id=…)
 export const fetchTaskListDetail = (
     tasklistId?: string // now optional
 ): Promise<TaskListDetail> =>
@@ -16,8 +15,6 @@ export const fetchTaskListDetail = (
         })
         .then(r => r.data);
 
-
-// 3️⃣ Helper: fetch *all* details in order
 export const fetchAllTaskListDetails = (): Promise<TaskListDetail[]> =>
     fetchTaskListSummaries().then(summaries =>
         Promise.all(summaries.map(s => fetchTaskListDetail(s.tasklistId)))
@@ -39,10 +36,6 @@ export const createTask = (task: CreateTaskPayload): Promise<void> => {
 export const deleteTaskList = (id: string): Promise<void> => {
     return api.delete(`/todo/tasklists/${id}`);
 };
-
-// export const updateTask = (task: Task): Promise<void> => {
-//     return api.put('/todo/task', task).then(res => res.data);
-// };
 
 export const updateTaskCompleted = (id: string, completed: boolean) =>
     api.put('/todo/task', { id, completed });
