@@ -8,7 +8,7 @@ import {
     Box,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import logoUrl from '../style/Logo-Mandai-EquaGreen.svg';
+import logoUrl from '../assets/Logo-Mandai-EquaGreen.svg';
 
 interface NavBarProps {
     onToggleSidebar: () => void;

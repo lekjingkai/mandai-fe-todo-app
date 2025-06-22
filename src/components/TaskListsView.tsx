@@ -26,7 +26,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
-import pandaLogo from '../style/no-task-panda.svg';
+import pandaLogo from '../assets/no-task-panda.svg';
 
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
@@ -38,7 +38,7 @@ import {
     updateTaskListName, updateTaskTasklist
 } from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
-import logoUrl from "../style/Logo-Mandai-EquaGreen.svg";
+import logoUrl from "../assets/Logo-Mandai-EquaGreen.svg";
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
     const date = parseISO(dateString);
