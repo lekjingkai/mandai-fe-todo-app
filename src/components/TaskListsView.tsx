@@ -24,6 +24,9 @@ import {
     ClickAwayListener, Paper, Divider
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
     deleteTaskList,
@@ -360,11 +363,22 @@ export const TaskListsView: React.FC<{
                                                 open={Boolean(taskAnchorEl) && activeTaskId === task.id}
                                                 onClose={handleTaskMenuClose}
                                             >
-                                                <MenuItem onClick={() => handleDeleteTask(task.id)}>Delete</MenuItem>
+                                                <MenuItem onClick={() => handleDeleteTask(task.id)} >
+                                                    <DeleteIcon/>
+                                                    <span style={{paddingLeft: '6px'}}>Delete</span>
+                                                </MenuItem>
                                                 <Divider />
-                                                {details.map((list, index) => (
-                                                    <MenuItem key={list.id} onClick={() => console.log('Move to:', list.id)}>
-                                                        {list.title}
+                                                {details.map((dropdownList) => (
+                                                    <MenuItem key={dropdownList.id} onClick={() => console.log('Move to:', dropdownList.id)}>
+                                                        {dropdownList.title === list.title && (
+                                                            <ListItemIcon>
+                                                                <CheckIcon fontSize="small" />
+                                                            </ListItemIcon>
+                                                        )}
+                                                        {dropdownList.title !== list.title && (
+                                                            <ListItemIcon sx={{ width: 24 }} />
+                                                        )}
+                                                        <span style={{paddingLeft: '6px'}}>{dropdownList.title}</span>
                                                     </MenuItem>
                                                 ))}
                                             </Menu>
