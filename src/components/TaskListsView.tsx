@@ -12,7 +12,16 @@ import {
     Menu,
     MenuItem,
     ListItemIcon,
-    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, ListItem
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    TextField,
+    ListItem,
+    Popper,
+    ClickAwayListener, Paper
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
@@ -69,6 +78,20 @@ export const TaskListsView: React.FC<{
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, [enabledTaskLists]);
+
+    const [anchorElDate, setAnchorElDate] = useState<null | HTMLElement>(null);
+    const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+    const [taskDueTime, setTaskDueTime] = useState('');
+    const [taskDueDate, setTaskDueDate] = useState('');
+
+
+    const handleDueDateClick = (event: React.MouseEvent<HTMLElement>, task: { id: string, dueDate?: string, dueTime?: string }) => {
+        event.stopPropagation();
+        setAnchorElDate(anchorEl ? null : event.currentTarget);
+        setEditingTaskId(task.id);
+        setTaskDueDate(task.dueDate || '');
+        setTaskDueTime(task.dueTime || '');
+    };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, listId: string) => {
         setAnchorEl(event.currentTarget);
@@ -293,7 +316,7 @@ export const TaskListsView: React.FC<{
                                                     borderRadius: '6px',
                                                     mt: 0.5
                                                 }}
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) => handleDueDateClick(e, task)}
                                             >
                                                 {formatDueDateLabel(task.dueDate, task.dueTime)}
                                             </Button>
@@ -339,6 +362,49 @@ export const TaskListsView: React.FC<{
                     <Button onClick={confirmRename} variant="contained">Rename</Button>
                 </DialogActions>
             </Dialog>
+
+            <Popper open={Boolean(anchorElDate)} anchorEl={anchorElDate} placement="bottom-start" disablePortal>
+                <ClickAwayListener onClickAway={() => setAnchorElDate(null)}>
+                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250 }}>
+                        <Box display="flex" flexDirection="column" gap={1}>
+                            <Box>
+                                <TextField
+                                    fullWidth
+                                    type="date"
+                                    label="Due Date"
+                                    InputLabelProps={{ shrink: true }}
+                                    value={taskDueDate}
+                                    onChange={(e) => setTaskDueDate(e.target.value)}
+                                />
+                            </Box>
+                            <Box>
+                                <TextField
+                                    fullWidth
+                                    type="time"
+                                    label="Due Time"
+                                    InputLabelProps={{ shrink: true }}
+                                    value={taskDueTime}
+                                    onChange={(e) => setTaskDueTime(e.target.value)}
+                                />
+                            </Box>
+                            <Box display="flex" justifyContent="flex-end" gap={1} mt={1}>
+                                <Button onClick={() => setAnchorElDate(null)} size="small" color="inherit">Cancel</Button>
+                                <Button
+                                    onClick={() => {
+                                        console.log(`Save task ${editingTaskId} due:`, taskDueDate, taskDueTime);
+                                        // TODO: add API call here
+                                        setAnchorElDate(null);
+                                    }}
+                                    size="small"
+                                    variant="contained"
+                                >
+                                    Done
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </ClickAwayListener>
+            </Popper>
 
         </>
     );
