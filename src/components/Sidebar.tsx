@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -17,18 +17,21 @@ import {
     DialogActions,
     TextField
 } from '@mui/material';
-import { fetchTaskListSummaries, updateTaskListEnabled, createTaskList } from '../api/tasks';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import {fetchTaskListSummaries, updateTaskListEnabled, createTaskList} from '../api/tasks';
 import '../style/Sidebar.css';
-import { TaskListSummary } from '../types';
+import {TaskListSummary} from '../types';
 
 export const Sidebar: React.FC<{
     taskListSummaries: TaskListSummary[];
     setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>;
-}> = ({ taskListSummaries, setTaskListSummaries }) => {
+}> = ({taskListSummaries, setTaskListSummaries}) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
     const [openModal, setOpenModal] = useState(false);
     const [newTitle, setNewTitle] = useState('');
+    const [selectedTab, setSelectedTab] = useState<'all' | 'starred'>('all');
 
     useEffect(() => {
         fetchTaskListSummaries()
@@ -44,14 +47,14 @@ export const Sidebar: React.FC<{
         const newEnabled = !current.enabled;
         setTaskListSummaries(prev =>
             prev.map(list =>
-                list.tasklistId === tasklistId ? { ...list, enabled: newEnabled } : list
+                list.tasklistId === tasklistId ? {...list, enabled: newEnabled} : list
             )
         );
 
         updateTaskListEnabled(tasklistId, newEnabled).catch(() => {
             setTaskListSummaries(prev =>
                 prev.map(list =>
-                    list.tasklistId === tasklistId ? { ...list, enabled: current.enabled } : list
+                    list.tasklistId === tasklistId ? {...list, enabled: current.enabled} : list
                 )
             );
         });
@@ -85,28 +88,43 @@ export const Sidebar: React.FC<{
                 padding: '12px 8px 0',
             }}
         >
-            <Button variant="contained" fullWidth sx={{ mb: 2 }}>
+            <Button variant="contained" fullWidth sx={{mb: 2}}>
                 CREATE
             </Button>
 
-            <List disablePadding>
-                <ListItemButton>
-                    <ListItemText primary="ALL TASKS" />
+            <List>
+                <ListItemButton
+                    className="taskListItem"
+                    selected={selectedTab === 'all'}
+                    onClick={() => setSelectedTab('all')}
+                >
+                    <ListItemIcon>
+                        <TaskAltIcon style={{marginRight: '5px'}}/>
+                    </ListItemIcon>
+                    <ListItemText primary="All tasks"/>
                 </ListItemButton>
-                <ListItemButton>
-                    <ListItemText primary="STARRED" />
+
+                <ListItemButton
+                    className="taskListItem"
+                    selected={selectedTab === 'starred'}
+                    onClick={() => setSelectedTab('starred')}
+                >
+                    <ListItemIcon>
+                        <StarBorderIcon style={{marginRight: '5px'}}/>
+                    </ListItemIcon>
+                    <ListItemText primary="Starred"/>
                 </ListItemButton>
             </List>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{my: 2}}/>
 
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom style={{padding: '0 5px'}}>
                 LISTS:
             </Typography>
 
             {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                    <CircularProgress size={24} />
+                <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
+                    <CircularProgress size={24}/>
                 </Box>
             ) : error ? (
                 <Typography color="error">{error}</Typography>
@@ -142,7 +160,7 @@ export const Sidebar: React.FC<{
             <Button
                 variant="outlined"
                 fullWidth
-                sx={{ mt: 2 }}
+                sx={{mt: 2}}
                 onClick={() => setOpenModal(true)}
             >
                 + New List

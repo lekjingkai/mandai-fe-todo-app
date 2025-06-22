@@ -49,5 +49,5 @@ npm install @mui/material @emotion/react @emotion/styled uuid date-fns
 npm install axios
 npm install @dnd-kit/core @dnd-kit/sortable
 npm install @mui/icons-material
-
+npm start
 
