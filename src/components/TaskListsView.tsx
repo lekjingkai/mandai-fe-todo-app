@@ -27,7 +27,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
     deleteTaskList,
-    fetchTaskListDetail,
+    fetchTaskListDetail, updateTask,
     updateTaskCompleted,
     updateTaskDatetime,
     updateTaskListName
@@ -71,6 +71,17 @@ export const TaskListsView: React.FC<{
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [renameValue, setRenameValue] = useState('');
+    const [anchorElEdit, setAnchorElEdit] = useState<null | HTMLElement>(null);
+    const [editingTask, setEditingTask] = useState<{ id: string; title: string; notes?: string; dueDate?: string; dueTime?: string } | null>(null);
+    const handleEditTaskClick = (
+        event: React.MouseEvent<HTMLElement>,
+        task: { id: string; title: string; notes?: string; dueDate?: string; dueTime?: string }
+    ) => {
+        event.stopPropagation();
+        setAnchorElEdit(event.currentTarget);
+        setEditingTask({ ...task });
+    };
+
 
 
     useEffect(() => {
@@ -242,6 +253,29 @@ export const TaskListsView: React.FC<{
         }
     };
 
+    const handleSaveTaskEdit = async () => {
+        if (!editingTask) return;
+        try {
+            await updateTask(editingTask.id, editingTask.title || '', editingTask.notes || '', editingTask.dueDate || '', editingTask.dueTime || '');
+
+            setDetails(prev =>
+                prev.map(list => ({
+                    ...list,
+                    tasks: list.tasks.map(task =>
+                        task.id === editingTask.id
+                            ? { ...task, ...editingTask }
+                            : task
+                    )
+                }))
+            );
+        } catch (err) {
+            console.error('Update failed:', err);
+        } finally {
+            setAnchorElEdit(null);
+        }
+    };
+
+
 
     if (loading) {
         return (
@@ -307,8 +341,8 @@ export const TaskListsView: React.FC<{
                                     </ListItemIcon>
 
                                     <Box sx={{ flexGrow: 1 }} className="task-text-box">
-                                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                                            <Box>
+                                        <Box display="flex" justifyContent="space-between" alignItems="center" >
+                                            <Box onClick={(e) => handleEditTaskClick(e, task)} sx={{ cursor: 'pointer' }}>
                                                 <Typography className="title-text">{task.title}</Typography>
                                                 {task.notes && (
                                                     <Typography className="notes-text">{task.notes}</Typography>
@@ -431,6 +465,55 @@ export const TaskListsView: React.FC<{
                     </Paper>
                 </ClickAwayListener>
             </Popper>
+
+            <Popper open={Boolean(anchorElEdit)} anchorEl={anchorElEdit} placement="bottom-start" disablePortal>
+                <ClickAwayListener onClickAway={() => setAnchorElEdit(null)}>
+                    <Paper sx={{ p: 2, mt: 1, zIndex: 10, minWidth: 250 }}>
+                        <Box display="flex" flexDirection="column" gap={1}>
+                            <TextField
+                                label="Title"
+                                value={editingTask?.title || ''}
+                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Notes"
+                                value={editingTask?.notes || ''}
+                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, notes: e.target.value } : prev)}
+                                fullWidth
+                                multiline
+                            />
+                            <TextField
+                                label="Due Date"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                value={editingTask?.dueDate || ''}
+                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, dueDate: e.target.value } : prev)}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Due Time"
+                                type="time"
+                                InputLabelProps={{ shrink: true }}
+                                value={editingTask?.dueTime || ''}
+                                onChange={(e) => setEditingTask(prev => prev ? { ...prev, dueTime: e.target.value } : prev)}
+                                fullWidth
+                            />
+                            <Box display="flex" justifyContent="flex-end" gap={1}>
+                                <Button onClick={() => setAnchorElEdit(null)} size="small" color="inherit">Cancel</Button>
+                                <Button
+                                    onClick={handleSaveTaskEdit}
+                                    size="small"
+                                    variant="contained"
+                                >
+                                    Save
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </ClickAwayListener>
+            </Popper>
+
 
         </>
     );

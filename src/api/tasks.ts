@@ -40,12 +40,18 @@ export const deleteTaskList = (id: string): Promise<void> => {
     return api.delete(`/todo/tasklists/${id}`);
 };
 
-export const updateTask = (task: Task): Promise<void> => {
-    return api.put('/todo/task', task).then(res => res.data);
-};
+// export const updateTask = (task: Task): Promise<void> => {
+//     return api.put('/todo/task', task).then(res => res.data);
+// };
 
 export const updateTaskCompleted = (id: string, completed: boolean) =>
     api.put('/todo/task', { id, completed });
 
 export const updateTaskDatetime = (id: string, dueDate: string, dueTime: string) =>
     api.put('/todo/task', { id, dueDate, dueTime });
+
+export const updateTask = (id: string, title: string, notes: string, dueDate: string, dueTime: string) =>
+    api.put('/todo/task', { id, title, notes, dueDate, dueTime });
+
+export const updateTaskTasklist = (id: string, tasklistId: string) =>
+    api.put('/todo/task', { id, tasklistId });
