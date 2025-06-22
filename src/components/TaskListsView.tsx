@@ -34,7 +34,7 @@ import {
     fetchTaskListDetail, fetchTaskListSummaries, updateTask,
     updateTaskCompleted,
     updateTaskDatetime,
-    updateTaskListName
+    updateTaskListName, updateTaskTasklist
 } from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
 
@@ -200,7 +200,6 @@ export const TaskListsView: React.FC<{
                 }))
             );
 
-            // 🔄 Refresh sidebar task counts
             const updatedSummaries = await fetchTaskListSummaries();
             setTaskListSummaries(updatedSummaries);
         } catch (err) {
@@ -209,6 +208,39 @@ export const TaskListsView: React.FC<{
             handleTaskMenuClose();
         }
     };
+
+    const handleMoveTaskToAnotherList = async (
+        taskId: string,
+        fromListId: string,
+        toListId: string
+    ) => {
+        if (fromListId === toListId) return;
+
+        try {
+            await updateTaskTasklist(taskId, toListId);
+
+            // Remove task from old list
+            setDetails(prev =>
+                prev.map(list =>
+                    list.id === fromListId
+                        ? {
+                            ...list,
+                            tasks: list.tasks.filter(task => task.id !== taskId)
+                        }
+                        : list
+                )
+            );
+
+            // Refresh sidebar counts
+            const updatedSummaries = await fetchTaskListSummaries();
+            setTaskListSummaries(updatedSummaries);
+        } catch (err) {
+            console.error('Failed to move task:', err);
+        } finally {
+            handleTaskMenuClose();
+        }
+    };
+
 
 
 
@@ -388,7 +420,10 @@ export const TaskListsView: React.FC<{
                                                 </MenuItem>
                                                 <Divider />
                                                 {details.map((dropdownList) => (
-                                                    <MenuItem key={dropdownList.id} onClick={() => handleDeleteTask(task.id)}>
+                                                    <MenuItem
+                                                        key={dropdownList.id}
+                                                        onClick={() => handleMoveTaskToAnotherList(task.id, list.id, dropdownList.id)}
+                                                    >
                                                         {dropdownList.title === list.title && (
                                                             <ListItemIcon>
                                                                 <CheckIcon fontSize="small" />
