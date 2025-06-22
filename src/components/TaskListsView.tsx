@@ -42,7 +42,11 @@ const formatDueDateLabel = (dateString: string, timeString?: string): string => 
     return label;
 };
 
-export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({ enabledTaskLists }) => {
+export const TaskListsView: React.FC<{
+    enabledTaskLists: TaskListSummary[],
+    setTaskListSummaries: React.Dispatch<React.SetStateAction<TaskListSummary[]>>
+}> = ({ enabledTaskLists, setTaskListSummaries }) => {
+
     const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
@@ -101,6 +105,7 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
         if (menuListId) {
             await deleteTaskList(menuListId);
             setDetails(prev => prev.filter(d => d.id !== menuListId));
+            setTaskListSummaries(prev => prev.filter(l => l.tasklistId !== menuListId)); // <-- update sidebar too
         }
         setConfirmDeleteOpen(false);
     };

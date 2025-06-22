@@ -34,7 +34,10 @@ const App: React.FC = () => {
                         setTaskListSummaries={setTaskListSummaries}
                     />
                 )}
-                <TaskListsView enabledTaskLists={taskListSummaries.filter(l => l.enabled)} />
+                <TaskListsView
+                    enabledTaskLists={taskListSummaries.filter(l => l.enabled)}
+                    setTaskListSummaries={setTaskListSummaries}
+                />
             </Box>
         </>
     );
