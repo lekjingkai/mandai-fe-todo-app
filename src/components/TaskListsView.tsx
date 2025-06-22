@@ -31,7 +31,7 @@ import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import {
     deleteTask,
     deleteTaskList,
-    fetchTaskListDetail, updateTask,
+    fetchTaskListDetail, fetchTaskListSummaries, updateTask,
     updateTaskCompleted,
     updateTaskDatetime,
     updateTaskListName
@@ -199,13 +199,17 @@ export const TaskListsView: React.FC<{
                     tasks: list.tasks.filter(task => task.id !== taskId),
                 }))
             );
+
+            // 🔄 Refresh sidebar task counts
+            const updatedSummaries = await fetchTaskListSummaries();
+            setTaskListSummaries(updatedSummaries);
         } catch (err) {
             console.error('Failed to delete task:', err);
-            // Optionally show an error UI
         } finally {
             handleTaskMenuClose();
         }
     };
+
 
 
     const handleTaskClick = (taskId: string) => {
