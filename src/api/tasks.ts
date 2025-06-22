@@ -46,3 +46,6 @@ export const updateTask = (task: Task): Promise<void> => {
 
 export const updateTaskCompleted = (id: string, completed: boolean) =>
     api.put('/todo/task', { id, completed });
+
+export const updateTaskDatetime = (id: string, dueDate: string, dueTime: string) =>
+    api.put('/todo/task', { id, dueDate, dueTime });

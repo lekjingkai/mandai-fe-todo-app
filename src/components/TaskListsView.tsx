@@ -25,7 +25,13 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-import {deleteTaskList, fetchTaskListDetail, updateTaskCompleted, updateTaskListName} from '../api/tasks';
+import {
+    deleteTaskList,
+    fetchTaskListDetail,
+    updateTaskCompleted,
+    updateTaskDatetime,
+    updateTaskListName
+} from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
@@ -211,6 +217,30 @@ export const TaskListsView: React.FC<{
     };
 
 
+    const handleSaveDueDate = async () => {
+        if (!editingTaskId) return;
+
+        try {
+            await updateTaskDatetime(editingTaskId, taskDueDate, taskDueTime);
+            console.log(`Updated task ${editingTaskId} due:`, taskDueDate, taskDueTime);
+
+            setDetails(prev =>
+                prev.map(list => ({
+                    ...list,
+                    tasks: list.tasks.map(task =>
+                        task.id === editingTaskId
+                            ? { ...task, dueDate: taskDueDate, dueTime: taskDueTime }
+                            : task
+                    )
+                }))
+            );
+        } catch (err) {
+            console.error('Failed to update task due date/time:', err);
+            // Optionally show an error UI
+        } finally {
+            setAnchorElDate(null);
+        }
+    };
 
 
     if (loading) {
@@ -390,11 +420,7 @@ export const TaskListsView: React.FC<{
                             <Box display="flex" justifyContent="flex-end" gap={1} mt={1}>
                                 <Button onClick={() => setAnchorElDate(null)} size="small" color="inherit">Cancel</Button>
                                 <Button
-                                    onClick={() => {
-                                        console.log(`Save task ${editingTaskId} due:`, taskDueDate, taskDueTime);
-                                        // TODO: add API call here
-                                        setAnchorElDate(null);
-                                    }}
+                                    onClick={handleSaveDueDate}
                                     size="small"
                                     variant="contained"
                                 >
