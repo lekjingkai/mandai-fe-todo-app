@@ -21,6 +21,7 @@ import {
     InputLabel,
     FormControl
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { fetchTaskListSummaries, updateTaskListEnabled, createTaskList } from '../api/tasks';
@@ -229,24 +230,30 @@ export const Sidebar: React.FC<{
                         value={taskNotes}
                         onChange={e => setTaskNotes(e.target.value)}
                     />
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        type="date"
-                        label="Due Date"
-                        InputLabelProps={{ shrink: true }}
-                        value={taskDueDate}
-                        onChange={e => setTaskDueDate(e.target.value)}
-                    />
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        type="time"
-                        label="Due Time"
-                        InputLabelProps={{ shrink: true }}
-                        value={taskDueTime}
-                        onChange={e => setTaskDueTime(e.target.value)}
-                    />
+                    <Grid container spacing={2}>
+                            <Box component="div">
+                                <TextField
+                                    fullWidth
+                                    margin="dense"
+                                    type="date"
+                                    label="Due Date"
+                                    InputLabelProps={{ shrink: true }}
+                                    value={taskDueDate}
+                                    onChange={e => setTaskDueDate(e.target.value)}
+                                />
+                            </Box>
+                            <Box component="div">
+                                <TextField
+                                    fullWidth
+                                    margin="dense"
+                                    type="time"
+                                    label="Due Time"
+                                    InputLabelProps={{ shrink: true }}
+                                    value={taskDueTime}
+                                    onChange={e => setTaskDueTime(e.target.value)}
+                                />
+                            </Box>
+                        </Grid>
                     <FormControl fullWidth margin="dense">
                         <InputLabel id="tasklist-select-label">Task List</InputLabel>
                         <Select
@@ -255,15 +262,12 @@ export const Sidebar: React.FC<{
                             onChange={e => setTaskListId(e.target.value || null)}
                             label="Task List"
                             renderValue={(selected) => {
-                                if (!selected || selected == 'default') {
-                                    return <span>My Tasks</span>;
-                                }
+                                if (!selected || selected === 'default') return 'My Tasks';
                                 const list = taskListSummaries.find(l => l.tasklistId === selected);
-                                return <span>{list ? list.title : 'Unknown'}</span>;
+                                return list ? list.title : 'Unknown';
                             }}
-
                         >
-                            <MenuItem value='default'>My Tasks</MenuItem>
+                            <MenuItem value="default">My Tasks</MenuItem>
                             {taskListSummaries.map(list => (
                                 <MenuItem key={list.tasklistId} value={list.tasklistId}>{list.title}</MenuItem>
                             ))}
