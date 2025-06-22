@@ -123,3 +123,7 @@
     padding-right: 5px;
 }
 
+.last-task-item {
+background: #61dafb !important;
+    padding: 0 !important;
+}

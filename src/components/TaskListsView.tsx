@@ -1,13 +1,29 @@
 // src/components/TaskListsView.tsx
 import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, Alert, Typography, List, ListItem, ListItemText, Checkbox } from '@mui/material';
-import {fetchAllTaskListDetails, fetchTaskListDetail} from '../api/tasks';
-import {TaskListDetail, TaskListSummary} from '../types';
+import {
+    Box,
+    CircularProgress,
+    Alert,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    Checkbox,
+    IconButton,
+    Menu,
+    MenuItem,
+    ListItemIcon
+} from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { fetchAllTaskListDetails, fetchTaskListDetail } from '../api/tasks';
+import { TaskListDetail, TaskListSummary } from '../types';
 
 export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({ enabledTaskLists }) => {
     const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [menuListId, setMenuListId] = useState<string | null>(null);
 
     useEffect(() => {
         const promises = [
@@ -21,6 +37,25 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
             .finally(() => setLoading(false));
     }, [enabledTaskLists]);
 
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, listId: string) => {
+        setAnchorEl(event.currentTarget);
+        setMenuListId(listId);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setMenuListId(null);
+    };
+
+    const handleRename = () => {
+        console.log('Rename:', menuListId);
+        handleMenuClose();
+    };
+
+    const handleDelete = () => {
+        console.log('Delete:', menuListId);
+        handleMenuClose();
+    };
 
     if (loading) {
         return (
@@ -52,14 +87,27 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
             }}
         >
             {details.map(list => (
-                <Box key={list.id} sx={{ minWidth: 300, mr: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                        {list.title}
-                    </Typography>
+                <Box key={list.id} sx={{ minWidth: 300, mr: 2 }} style={{ background: "#f5f5f5", borderRadius: 8, padding: 12 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="h6" >{list.title}</Typography>
+                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
+                            <MoreVertIcon fontSize="small" />
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl) && menuListId === list.id}
+                            onClose={handleMenuClose}
+                        >
+                            <MenuItem onClick={handleRename}>Rename</MenuItem>
+                            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                        </Menu>
+                    </Box>
                     <List disablePadding>
                         {list.tasks.map(task => (
-                            <ListItem key={task.id} divider>
-                                <Checkbox checked={task.completed} disabled />
+                            <ListItem key={task.id} divider className="last-task-item">
+                                <ListItemIcon className="checkboxIcon">
+                                <Checkbox checked={task.completed} />
+                                </ListItemIcon>
                                 <ListItemText
                                     primary={task.title}
                                     secondary={`${task.notes} • Due ${task.dueDate} @ ${task.dueTime}`}
