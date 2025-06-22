@@ -1,5 +1,5 @@
 // src/components/TaskListsView.tsx
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     CircularProgress,
@@ -11,13 +11,14 @@ import {
     Checkbox,
     IconButton,
     Menu,
-    MenuItem, ListItemIcon, Button
+    MenuItem,
+    ListItemIcon,
+    Button
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-
-import {fetchAllTaskListDetails, fetchTaskListDetail} from '../api/tasks';
-import {TaskListDetail, TaskListSummary} from '../types';
+import { fetchTaskListDetail } from '../api/tasks';
+import { TaskListDetail, TaskListSummary } from '../types';
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
     const date = parseISO(dateString);
@@ -41,16 +42,18 @@ const formatDueDateLabel = (dateString: string, timeString?: string): string => 
     return label;
 };
 
-export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({enabledTaskLists}) => {
+export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = ({ enabledTaskLists }) => {
     const [details, setDetails] = useState<TaskListDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuListId, setMenuListId] = useState<string | null>(null);
+    const [taskAnchorEl, setTaskAnchorEl] = useState<null | HTMLElement>(null);
+    const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
     useEffect(() => {
         const promises = [
-            fetchTaskListDetail(), // fetch default list (no id)
+            fetchTaskListDetail(),
             ...enabledTaskLists.map(list => fetchTaskListDetail(list.tasklistId))
         ];
 
@@ -70,52 +73,56 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
         setMenuListId(null);
     };
 
+    const handleTaskMenuOpen = (event: React.MouseEvent<HTMLElement>, taskId: string) => {
+        setTaskAnchorEl(event.currentTarget);
+        setActiveTaskId(taskId);
+    };
+
+    const handleTaskMenuClose = () => {
+        setTaskAnchorEl(null);
+        setActiveTaskId(null);
+    };
+
     const handleRename = () => {
-        console.log('Rename:', menuListId);
+        console.log('Rename list:', menuListId);
         handleMenuClose();
     };
 
     const handleDelete = () => {
-        console.log('Delete:', menuListId);
+        console.log('Delete list:', menuListId);
         handleMenuClose();
+    };
+
+    const handleUpdateTask = (taskId: string) => {
+        console.log('Update task:', taskId);
+        handleTaskMenuClose();
+    };
+
+    const handleDeleteTask = (taskId: string) => {
+        console.log('Delete task:', taskId);
+        handleTaskMenuClose();
     };
 
     if (loading) {
         return (
-            <Box
-                sx={{
-                    flexGrow: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <CircularProgress/>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress />
             </Box>
         );
     }
 
     if (error) {
-        return <Alert severity="error" sx={{flexGrow: 1}}>{error}</Alert>;
+        return <Alert severity="error" sx={{ flexGrow: 1 }}>{error}</Alert>;
     }
 
     return (
-        <Box
-            component="main"
-            sx={{
-                flexGrow: 1,
-                p: 2,
-                display: 'flex',
-                overflowX: 'auto',
-            }}
-        >
+        <Box component="main" sx={{ flexGrow: 1, p: 2, display: 'flex', overflowX: 'auto' }}>
             {details.map(list => (
-                <Box key={list.id} sx={{minWidth: 300, mr: 2}}
-                     style={{background: "#f5f5f5", borderRadius: 8}}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" className={"tasklist-box"}>
-                        <Typography>{list.title}</Typography>
+                <Box key={list.id} sx={{ minWidth: 300, mr: 2, background: "#f5f5f5", borderRadius: 5 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" className="tasklist-box">
+                        <Typography style={{fontWeight: 600}}>{list.title}</Typography>
                         <IconButton size="small" onClick={(e) => handleMenuOpen(e, list.id)}>
-                            <MoreVertIcon fontSize="small"/>
+                            <MoreVertIcon fontSize="small" />
                         </IconButton>
                         <Menu
                             anchorEl={anchorEl}
@@ -128,31 +135,52 @@ export const TaskListsView: React.FC<{ enabledTaskLists: TaskListSummary[] }> = 
                     </Box>
                     <List disablePadding>
                         {list.tasks.map(task => (
-                            <ListItem key={task.id} divider className="task-item">
+                            <ListItem key={task.id} divider className="task-item" alignItems="flex-start">
                                 <ListItemIcon className="checkboxIcon">
-                                    <Checkbox checked={task.completed}/>
+                                    <Checkbox checked={task.completed} />
                                 </ListItemIcon>
                                 <ListItemText
-                                    className={"task-text-box"}
+                                    className="task-text-box"
                                     primary={
-                                        <>
-                                            <Typography className={"title-text"}>{task.title}</Typography>
-                                            {task.notes && (
-                                                <Typography className={"notes-text"}>
-                                                    {task.notes}
-                                                </Typography>
-                                            )}
-                                        </>
+                                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                                            <Box>
+                                                <Typography className="title-text">{task.title}</Typography>
+                                                {task.notes && (
+                                                    <Typography className="notes-text">{task.notes}</Typography>
+                                                )}
+                                            </Box>
+                                            <IconButton size="small" onClick={(e) => handleTaskMenuOpen(e, task.id)}>
+                                                <MoreVertIcon fontSize="small" />
+                                            </IconButton>
+                                            <Menu
+                                                anchorEl={taskAnchorEl}
+                                                open={Boolean(taskAnchorEl) && activeTaskId === task.id}
+                                                onClose={handleTaskMenuClose}
+                                            >
+                                                <MenuItem onClick={() => handleUpdateTask(task.id)}>Update</MenuItem>
+                                                <MenuItem onClick={() => handleDeleteTask(task.id)}>Delete</MenuItem>
+                                            </Menu>
+                                        </Box>
                                     }
                                     secondary={
-                                        <>
-                                            {task.dueDate && (
-                                                <Button variant="text" size="small" color="inherit"   sx={{ p: 0, minWidth: 0, textTransform: 'none' }}
-                                                className={"date-button"}>
-                                                    {formatDueDateLabel(task.dueDate, task.dueTime)}
-                                                </Button>
-                                            )}
-                                        </>
+                                        task.dueDate && (
+                                            <Button
+                                                variant="text"
+                                                size="small"
+                                                color="inherit"
+                                                className="date-button"
+                                                sx={{
+                                                    p: 0,
+                                                    minWidth: 0,
+                                                    textTransform: 'none',
+                                                    borderRadius: '6px',
+                                                    backgroundColor: '#61dafb !important',
+                                                    mt: 0.5
+                                                }}
+                                            >
+                                                {formatDueDateLabel(task.dueDate, task.dueTime)}
+                                            </Button>
+                                        )
                                     }
                                 />
                             </ListItem>
