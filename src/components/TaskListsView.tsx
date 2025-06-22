@@ -13,11 +13,11 @@ import {
     Menu,
     MenuItem,
     ListItemIcon,
-    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+    Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-import {deleteTaskList, fetchTaskListDetail} from '../api/tasks';
+import {deleteTaskList, fetchTaskListDetail, updateTaskListName} from '../api/tasks';
 import { TaskListDetail, TaskListSummary } from '../types';
 
 const formatDueDateLabel = (dateString: string, timeString?: string): string => {
@@ -55,6 +55,8 @@ export const TaskListsView: React.FC<{
     const [taskAnchorEl, setTaskAnchorEl] = useState<null | HTMLElement>(null);
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+    const [renameValue, setRenameValue] = useState('');
 
 
     useEffect(() => {
@@ -90,9 +92,38 @@ export const TaskListsView: React.FC<{
     };
 
     const handleRename = () => {
-        console.log('Rename list:', menuListId);
-        handleMenuClose();
+        const currentList = details.find(d => d.id === menuListId);
+        setRenameValue(currentList?.title || '');
+        setRenameDialogOpen(true);
     };
+
+    const confirmRename = async () => {
+        if (!menuListId || !renameValue.trim()) return;
+
+        try {
+            const updated = await updateTaskListName(menuListId, renameValue.trim());
+
+            // Update task list title in view
+            setDetails(prev =>
+                prev.map(d =>
+                    d.id === menuListId ? { ...d, title: updated.title } : d
+                )
+            );
+
+            // Update sidebar summaries
+            setTaskListSummaries(prev =>
+                prev.map(s =>
+                    s.tasklistId === menuListId ? { ...s, title: updated.title } : s
+                )
+            );
+        } catch (err) {
+            console.error('Rename failed', err);
+        } finally {
+            setRenameDialogOpen(false);
+            handleMenuClose();
+        }
+    };
+
 
     const handleDelete = () => {
         console.log('Delete list:', menuListId);
@@ -232,6 +263,25 @@ export const TaskListsView: React.FC<{
                     <Button onClick={confirmDeleteList} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}>
+                <DialogTitle>Rename List</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        fullWidth
+                        label="New Name"
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setRenameDialogOpen(false)} color="inherit">Cancel</Button>
+                    <Button onClick={confirmRename} variant="contained">Rename</Button>
+                </DialogActions>
+            </Dialog>
+
         </>
     );
 };
