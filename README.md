@@ -1,4 +1,5 @@
-# Steps to run mandai-fe-todo-app locally
+# mandai-fe-todo-app
+Frontend repository for Mandai todo app
 
 ## Prerequisites
 
@@ -9,7 +10,7 @@ Before you begin, make sure you have the following installed on your machine:
 - **MySQL Server** (>= 8.0)
 - **MySQL CLI** (for running SQL scripts from the terminal)
 
-## Start frontend client
+## Start frontend client locally
 - npm install
 - npm start
 
